@@ -5,6 +5,18 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.0.3 — `aws_kms` signs
+
+`CaBackend` now documents `aws_kms` as a backend that signs rather than an
+unimplemented seam, and `RotateCaRequest` states the `keyReference` grammar it
+requires: a KMS key ARN, with alias ARNs refused because `kms:UpdateAlias`
+repoints an alias invisibly to the Control Plane and would swap the signing key
+underneath a CA whose public half is already distributed to every node.
+
+Descriptions only. The `CaBackend` enum is unchanged — `aws_kms` has been a
+member since v0.0.1, because the stored backend set is deliberately wider than
+the usable one and is never narrowed.
+
 ## v0.0.1 — initial release
 
 The first tagged bundle of the SessionLayer cross-repo contracts: the CP ↔
