@@ -5,6 +5,24 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.1.0 — an agent-connected node can be registered with its host anchor
+
+`RegisterNodeRequest` gains `connectorKind` (`agentless` | `agent`, default
+`agentless`), and `address` moves out of `required` because an `agent` node is
+reached through the Agent's own outbound channel and must not carry a dial
+address. The host anchor — at least one of `hostCertificate` / `pinnedHostKey` —
+is now stated as a requirement of both kinds, which is what the Gateway has
+always enforced: it runs the same no-TOFU host verification on the inner leg
+however it reached the node, so an agent node with no anchor aborts every
+session. Before this, the only way to give one an anchor was a direct database
+write.
+
+A MINOR bump: the new property is optional and defaults to the previous
+behaviour, and relaxing `address` from required widens what a server accepts
+without invalidating any request an existing client sends. The OpenAPI URI major
+stays `v1` and `info.version` stays `0.1.0`; no protobuf or wire contract is
+touched.
+
 ## v0.0.3 — `aws_kms` signs
 
 `CaBackend` now documents `aws_kms` as a backend that signs rather than an
