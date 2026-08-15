@@ -126,9 +126,10 @@ calls to resolve an SSH credential to a CP-owned identity: `ResolveUserCert`,
 on the identity/session (mTLS-required) tier — only an authenticated Gateway
 may resolve credentials. These RPCs authenticate only (resolve credential →
 `{identity, principals}`); the Gateway still calls `Authorization.Authorize`
-for the target node afterwards (invariant I2). Resolution failure is
-**generic** (`resolved = false`, no reason) so the outer-leg auth surface
-discloses no existence. Source IP is a deny-only reducer throughout.
+for the target node afterwards — resolving a credential never authorizes a
+target. Resolution failure is **generic** (`resolved = false`, no reason) so
+the outer-leg auth surface discloses no existence. Source IP is a deny-only
+reducer throughout.
 
 **`NodeConnection`** (field 8 on `AuthorizeResponse`, plus the `ConnectorKind`
 enum and the `NodeConnection`/`HostVerification` messages) tells the Gateway

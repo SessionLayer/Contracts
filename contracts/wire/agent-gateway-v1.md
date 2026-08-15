@@ -1,9 +1,8 @@
 # Agent ↔ Gateway Wire Protocol — v1 (specification)
 
-**Status:** **FROZEN at protocol 1.0.** An earlier skeleton fixed the framing
-and the preface and reserved the rest; this revision defines the reserved
-message types and the dial-back state machine, and is the normative contract
-both implementations are built against.
+**Status:** **FROZEN at protocol 1.0.** This document is the normative contract
+both implementations are built against: the framing, the connection preface,
+the message catalogue, and the dial-back state machine.
 
 **Payload encodings:** `contracts/proto/sessionlayer/agent/v1/wire.proto`.
 
@@ -150,13 +149,11 @@ not legal is a protocol error.
 appear on an Agent↔Gateway connection. Reserved types MUST be rejected as
 protocol errors until they are defined.
 
-**Renamed from the skeleton, same slot and direction:** `0x21` was pencilled in
-as `DIAL_BACK_READY`; it is defined here as `DIAL_BACK_RESULT` because it must
-also carry *failure* (a fast-fail so the Gateway need not wait out the dial-back
-deadline to learn the node's `sshd` is down). **Re-directed:** `0x30 STREAM_OPEN`
-was pencilled in as GW→Agent; it is Agent→GW, because only the Agent knows when
-the loopback connection actually came up. Neither type was ever implemented in
-its reserved form.
+Two assignments carry a rationale worth stating. `0x21` is a **result**, not a
+readiness signal, because it must also carry *failure* — a fast-fail, so the
+Gateway need not wait out the dial-back deadline to learn the node's `sshd` is
+down. `0x30 STREAM_OPEN` is **Agent→GW**, because only the Agent knows when the
+loopback connection actually came up.
 
 ## 5. The dial-back state machine
 
