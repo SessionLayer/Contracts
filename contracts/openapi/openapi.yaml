@@ -5054,6 +5054,7 @@ components:
         because a node with no anchor is one the Gateway can never verify and never
         TOFUs. Both may be sent: the host-CA path is authoritative and the pinned key
         is the fallback for a node that presents a plain host key.
+      minProperties: 1
       properties:
         hostCertificate:
           type: string

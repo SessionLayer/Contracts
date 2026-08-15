@@ -5,6 +5,20 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.2.1 — a validator refuses the empty anchor set, not only a reader
+
+`NodeHostAnchorsRequest` stated in prose that at least one of `hostCertificate` /
+`pinnedHostKey` is required, and left the rule for a human to apply. Over exactly
+two declared properties with `additionalProperties: false`, `minProperties: 1`
+says the same thing where a spec-driven client validator will actually check it —
+before the request reaches a server that would only refuse it. The prose stays,
+because the prose is what says why an empty set can never be accepted.
+
+A PATCH bump: no property, path, enum member or `required` list moved, and the
+keyword reaches neither generator — the Java models carry no constraint for it and
+`openapi-typescript` emits types only — so no consumer's generated code changes.
+`info.version` stays `0.1.0`.
+
 ## v0.2.0 — the refusals become visible and the anchorless node becomes repairable
 
 `AuthorizeRequest` gains `credential_principals`, the logins the presented
