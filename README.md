@@ -72,7 +72,10 @@ tag has been fetched.
 
 ## CI
 
-One required check, `gate`: `buf lint` + `buf breaking` (against the previous
-tag) + `redocly lint` over `contracts/`, via `contracts/lint.sh`. SHA-pinned
-actions, `permissions: contents: read`. Dependabot covers GitHub Actions only —
-this repo has no runtime dependencies.
+One required check, `gate`: `buf lint` + `buf breaking` (against the `main`
+baseline) + `redocly lint` over `contracts/`, via `contracts/lint.sh`. It then
+re-runs `contracts/wire/conformance/framegen` and fails if the committed golden
+frames differ from what the protos in that commit produce — the generator and its
+inputs both live here, and a stale golden is invisible to the consumers that check
+themselves against it. SHA-pinned actions, `permissions: contents: read`.
+Dependabot covers GitHub Actions only — this repo has no runtime dependencies.
