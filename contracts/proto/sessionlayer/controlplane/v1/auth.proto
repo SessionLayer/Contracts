@@ -14,10 +14,10 @@ option java_outer_classname = "AuthProto";
 //
 // AUTHENTICATION ONLY, NEVER AUTHORIZATION. These RPCs answer only "who is
 // this?"; they never grant access. On success the Gateway still calls
-// Authorization.Authorize for the target node (invariant I2 — a pin/OTP/cert is
-// an authN shortcut; every reconnect re-runs full authorization). The CP maps
-// identity -> principals; the Gateway MUST use only what the CP returns and MUST
-// NOT trust any client-claimed principal.
+// Authorization.Authorize for the target node (a pin/OTP/cert is an authN
+// shortcut; every reconnect re-runs full authorization). The CP maps identity ->
+// principals; the Gateway MUST use only what the CP returns and MUST NOT trust
+// any client-claimed principal.
 //
 // TIER. Every RPC here is on the identity/session (mTLS-required) tier of the
 // control plane: the AuthInterceptor requires the caller's Gateway mTLS client

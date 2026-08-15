@@ -9,8 +9,7 @@ option java_package = "io.sessionlayer.controlplane.grpc.v1";
 option java_outer_classname = "IdentityProto";
 
 // GatewayIdentity is the Control Plane service that bootstraps and renews a
-// Gateway's CP-facing mTLS X.509 identity. It is added in Session Four
-// alongside the mTLS transport.
+// Gateway's CP-facing mTLS X.509 identity.
 //
 // TRUST MODEL. The whole CP<->Gateway gRPC plane runs over TLS 1.3 and the CP
 // always presents a server certificate issued by the internal mTLS CA. Client
