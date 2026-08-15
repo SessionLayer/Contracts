@@ -39,8 +39,7 @@ message SignSessionCertificateRequest {
 
   // The Gateway-generated inner-leg PUBLIC key, OpenSSH wire-encoded (an
   // `ecdsa-sha2-nistp256` public-key blob). The Gateway generates the keypair
-  // locally and sends only this public half; the private key never leaves the
-  // Gateway.
+  // locally and sends only this public half; the private key never leaves it.
   bytes subject_public_key = 2;
 
   // Optional, NON-authoritative context for diagnostics and correlation. The

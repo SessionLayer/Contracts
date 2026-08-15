@@ -45,8 +45,8 @@ message DialBackSignal {
 
   // The owner this signal is addressed to (must match the subscriber's own id)
   // and the presence nonce the ingress saw at decision time. The owner re-checks
-  // it still owns the node with this exact nonce before serving (stale-ownership
-  // reject).
+  // it still owns the node with this exact nonce before serving, rejecting a
+  // stale-ownership claim.
   string owner_gateway_id = 6;
   uint64 owner_nonce = 7;
 
