@@ -28,8 +28,7 @@ contracts/
 
 See [`contracts/README.md`](contracts/README.md) for the full layout and
 per-contract detail, and [`contracts/VERSIONING.md`](contracts/VERSIONING.md)
-for the versioning policy (D33/§16A, FR-HA-9) and what each current protocol
-version covers.
+for the versioning policy and what each current protocol version covers.
 
 ## Tag scheme
 
