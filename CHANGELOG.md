@@ -5,6 +5,30 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.2.2 — six operations name the permission they enforce
+
+`GET`/`POST /v1/pins`, `DELETE /v1/pins/{pinId}`, `POST`/`DELETE
+/v1/service-accounts/{id}/credentials` and `GET /v1/jit-requests/{jitRequestId}`
+are all platform-RBAC gated, and not one of them said gated on what. Four carried
+no description at all; two said "Platform-RBAC gated + audited" and stopped there,
+which is worse than silence — it tells a client a gate exists and withholds the one
+fact needed to pass it. The five pin and credential operations name `user:manage`,
+the JIT read names `request:approve`, and each was read out of the controller that
+enforces it rather than inferred from its neighbours.
+
+The four missing descriptions are written. `POST /v1/jit-requests` already stated
+outright that it is open to any authenticated principal and is unchanged, but with
+the JIT read naming its permission the pair no longer reads as though the whole
+resource were ungated.
+
+Every platform-RBAC-gated operation on the surface now names its permission. The
+three that name none do so by design: `POST /v1/oauth2/token` and
+`POST /v1/auth/device` carry their own security schemes, and the JIT submission is
+deliberately open.
+
+A PATCH bump: descriptions only. No path, schema, property, enum member or
+`required` list moved, and `info.version` stays `0.1.0`.
+
 ## v0.2.1 — a validator refuses the empty anchor set, not only a reader
 
 `NodeHostAnchorsRequest` stated in prose that at least one of `hostCertificate` /
