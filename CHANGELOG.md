@@ -5,6 +5,17 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.1.2 — the relay client says why it is hand-rolled
+
+`gateway-relay-v1.md` told the reader to "see the supply-chain rationale" for why
+the reference NATS client is hand-rolled. That rationale is a page in a different
+repository, named nowhere and linked nowhere, so the pointer resolved for nobody.
+The document now states the reason: hand-rolling keeps an entire TLS stack out of
+the dependency graph.
+
+A PATCH bump, and the same defect as v0.1.1 in a form no id-shaped pattern could
+find — the pointer had no identifier in it at all.
+
 ## v0.1.1 — the contracts stop citing documents that do not ship
 
 Every citation of the design and requirements documents comes out of the proto
