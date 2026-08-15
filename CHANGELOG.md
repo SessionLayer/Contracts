@@ -5,6 +5,21 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.1.3 — three constraints stated in the present tense
+
+The last of the build provenance in this half of the bundle: the wire spec's
+`0x21` / `0x30` reservation notes, the versioning policy's account of how a host
+anchor used to be reachable, and the enrollment-token endpoint's reference to the
+raw `INSERT` the install guide once required. Each recorded how something used to
+be done, which a reader cannot act on.
+
+Where the note left a live constraint behind, the constraint is kept and stated in
+the present tense; where it did not, the note goes. Prose only.
+
+This release exists because the commit carrying it was written two minutes after
+`v0.1.1` was pushed and was therefore not in the merge — a stranding this repo has
+hit before, since it merges earliest and its branch keeps moving underneath.
+
 ## v0.1.2 — the relay client says why it is hand-rolled
 
 `gateway-relay-v1.md` told the reader to "see the supply-chain rationale" for why
