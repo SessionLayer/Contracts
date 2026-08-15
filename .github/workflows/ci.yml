@@ -43,3 +43,28 @@ jobs:
 
       - name: Run gate
         run: ./contracts/lint.sh
+
+      # framegen's inputs are the protos in this repository and its output is the
+      # golden both Rust repos check their codecs against. A proto change that
+      # lands without a regeneration therefore leaves both of their conformance
+      # suites green against bytes that no longer describe the contract, and this
+      # is the only place that sees the generator and its inputs together.
+      - name: Install protoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends protobuf-compiler
+          protoc --version
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # pinned commit (action publishes no semver tags)
+        with:
+          toolchain: "1.95.0"
+
+      - name: Regenerate the conformance golden
+        run: |
+          set -euo pipefail
+          cargo run --quiet --manifest-path contracts/wire/conformance/framegen/Cargo.toml
+          if ! git diff --exit-code -- contracts/wire/conformance/frames.json; then
+            echo "::error::contracts/wire/conformance/frames.json does not match what framegen produces from the protos in this commit. Run 'cargo run' in contracts/wire/conformance/framegen and commit the result."
+            exit 1
+          fi
