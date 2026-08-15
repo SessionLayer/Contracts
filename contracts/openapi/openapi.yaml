@@ -980,9 +980,9 @@ paths:
         required; an empty anchor set is rejected (`422`), because a node with no
         anchor does not fall back to trust-on-first-use, it stops working. A
         malformed key or certificate line is likewise a `422`. A full replace, so it
-        is idempotent by desired state. Refused (`409`) for a `removed` node: removal is
-        terminal, and a removed node is not repaired but replaced by a fresh
-        registration under a new name. Platform-RBAC gated (`node:enroll`) — the
+        is idempotent by desired state. Refused (`409`) for a `removed` node:
+        removal is terminal, and a removed node is not repaired but replaced by a
+        fresh registration under a new name. Platform-RBAC gated (`node:enroll`) — the
         same permission that writes these anchors during registration, because this
         writes exactly what registration writes — and audited.
       tags:
