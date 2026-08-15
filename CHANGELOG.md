@@ -5,6 +5,46 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.2.0 — the refusals become visible and the anchorless node becomes repairable
+
+`AuthorizeRequest` gains `credential_principals`, the logins the presented
+outer-leg credential is scoped to. The Gateway already reduces on that scope, but
+locally and before it asks — so a scoped credential used for a login outside its
+scope was refused with no decision record written anywhere, and the refusal an
+auditor most wants to see was the one nobody could. The field is a deny-only
+reducer like `source_ip`: it can suppress an allow, never widen one, and empty
+means unscoped. The Gateway keeps its local reduction as a backstop, so a caller
+that omits the field still cannot obtain an out-of-scope allow — it forfeits only
+the audit record, which is what it had before.
+
+`GET` and `PUT /v1/nodes/{nodeId}/host-anchors` are the repair path for a node
+with no host-identity anchor. An Agent that joins under a name nobody registered
+has its node created for it with neither a host certificate nor a pinned host key,
+and the Gateway never trusts a host on first use, so every session to that node
+aborts. No call could fix it: the only escape was to abandon the name. `PUT`
+replaces the anchor set atomically and refuses an empty one, because a node
+without an anchor does not fall back to trust-on-first-use — it stops working.
+Gated on `node:enroll`, the permission that writes the same anchors at
+registration.
+
+`NodeResource.health` and `owningGateway` now describe a derivation instead of a
+stored value. They are computed per request from `runtime.presence` and the node's
+anchors: an anchorless node is `unhealthy` before anything else is considered, an
+agent node is `healthy` / `unreachable` / `unknown` by how fresh its owner's
+heartbeat is, and an agentless node is `unknown` permanently — the Control Plane
+holds no liveness signal for a node it dials on demand, and that `unknown` is not
+a fault the reader should go looking for.
+
+The repo's own gate now regenerates `frames.json` and fails when the committed
+golden differs from what `framegen` produces. Both Rust consumers check their wire
+codecs against that file, so a proto change without a regeneration left two green
+suites measuring bytes that had stopped describing the contract.
+
+A MINOR bump: one protobuf field with a fresh number, one new path, and
+description text. The gRPC protocol stays `1.1` — a field added within an
+already-bumped minor does not move the number again — the wire protocol stays
+`1.0`, and the OpenAPI URI major stays `v1` with `info.version` `0.1.0`.
+
 ## v0.1.3 — three constraints stated in the present tense
 
 The last of the build provenance in this half of the bundle: the wire spec's
