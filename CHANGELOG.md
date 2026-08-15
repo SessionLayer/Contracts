@@ -5,6 +5,28 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.1.1 — the contracts stop citing documents that do not ship
+
+Every citation of the design and requirements documents comes out of the proto
+comments, the OpenAPI descriptions, the wire specifications and the contract
+READMEs: `FR-*` / `NFR-*` requirement ids, bare `§x.y` and `Design §x.y`
+sections, `D<n>` decision ids, and the internal invariant and build-history
+notes. Those documents ship in no SessionLayer repository, so a reader who
+followed one arrived nowhere — while the citation's shape claimed there was
+somewhere to arrive. Where the citation was the whole content of a comment, the
+rule it pointed at is written down in its place.
+
+Resolvable references are untouched: `RFC <n>` and its sections, the OpenID
+Connect specifications, `CVE` / `GHSA` / `RUSTSEC` advisories, cross-references
+between the documents in this bundle (`VERSIONING.md §2`,
+`agent-gateway-v1.md §3`), and the `R1`-`R5` row labels the conformance page
+defines for itself.
+
+A PATCH bump: description and comment text only. No schema, path, enum member,
+`required` list, field number, RPC or wire type changed, and `info.version`
+stays `0.1.0`. A consumer that regenerates sees the new text in its generated
+documentation comments; no generated type moves.
+
 ## v0.1.0 — an agent-connected node can be registered with its host anchor
 
 `RegisterNodeRequest` gains `connectorKind` (`agentless` | `agent`, default
