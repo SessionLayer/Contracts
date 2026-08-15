@@ -5,6 +5,48 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.3.0 — the pin list answers the question an operator actually asks
+
+Three defects found by standing a Control Plane up and driving the API, rather than
+by reading the spec.
+
+`GET /v1/pins` could not enumerate. `identity` was a required query parameter, so an
+operator holding `user:manage` could ask "does this identity have pins" but never
+"which pins exist" or "who still holds one" — the two questions offboarding and
+incident review start from, and neither answerable without already knowing the
+answer. `identity` is now optional: omitted lists every live pin, present filters to
+one identity. Relaxing a required parameter invalidates no request an existing
+client sends.
+
+`ttlSeconds` was required on every rule, including a `deny`, where a grant lifetime
+means nothing — a deny grants nothing and stays in force until the rule is changed.
+It comes out of both `required` lists, and its description now states the real rule:
+required for `effect: allow`, where it bounds the grant and its absence is a `422`
+naming the field; ignored for `effect: deny`. No default is invented, because an
+unbounded grant must never be inferred from silence.
+
+The closed permission vocabulary gains `metrics:read`. The Control Plane's metrics
+endpoint is authenticated but not authorized: a service account with no role
+bindings at all reads the full meter set — fleet-wide live-session counts,
+authorization error rates, CA-signer activity, session-limit denials — so every
+machine identity the platform has ever issued can read it. Reusing `audit:read`
+would be the worse trade, handing a scraper the entire audit trail to reach a gauge,
+so the vocabulary widens by one member instead. It sits beside `audit:read`, the
+other read-only view of the platform's own operation.
+
+**A widened closed vocabulary is a change every copy of it must follow**: the
+Control Plane's `PlatformPermissions.ALL`, the `platform_role.permissions` CHECK
+constraint, the seeded admin role, and the Dashboard's role editor. A copy that
+misses it rejects `metrics:read` as outside the vocabulary, and the permission is
+ungrantable.
+
+A MINOR bump, not a patch. Every change here is additive or relaxing and breaks no
+existing client, but none of them is description-only: a new enum member moves the
+generated Java enum and the TypeScript union, and both relaxations move generated
+model and client signatures. The PATCH row requires zero effect on a consumer's
+generated code, so it does not apply. The gRPC protocol stays `1.1`, the wire
+protocol `1.0`, the OpenAPI URI major `v1`, and `info.version` `0.1.0`.
+
 ## v0.2.2 — six operations name the permission they enforce
 
 `GET`/`POST /v1/pins`, `DELETE /v1/pins/{pinId}`, `POST`/`DELETE
