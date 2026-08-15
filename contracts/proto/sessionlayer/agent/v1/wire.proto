@@ -169,9 +169,8 @@ message DialBackAccept {}
 // its node's local sshd and the splice is live; the Gateway hands the connection
 // to the inner leg as a ByteStream at this point and not before.
 //
-// Direction note: this type is Agent->Gateway, not Gateway->Agent — the Agent
-// is the only party that knows when the loopback connection came up. It was
-// never implemented in the opposite direction, and the type number is unchanged.
+// Direction note: this type travels Agent->Gateway only, never the reverse —
+// the Agent is the only party that knows when the loopback connection came up.
 message StreamOpen {}
 
 // StreamCloseReason distinguishes an orderly end-of-stream from a fault, for the
