@@ -1,5 +1,3 @@
-//! mTLS channel construction: TLS 1.3 only, time-bounded, fail-closed.
-
 use crate::tls;
 use rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
 use rustls::client::WebPkiServerVerifier;
@@ -10,7 +8,6 @@ use std::time::Duration;
 use tonic::transport::{Channel, ClientTlsConfig, Endpoint, Identity};
 use zeroize::Zeroizing;
 
-/// mTLS channel errors (all variants are fail-closed refusals).
 #[derive(Debug, thiserror::Error)]
 pub enum MtlsError {
     #[error("invalid CP mTLS endpoint {endpoint:?}: {source}")]
@@ -34,7 +31,6 @@ pub enum MtlsError {
     Timeout { endpoint: String, after: Duration },
 }
 
-/// Channel parameters for CP mTLS connections.
 #[derive(Debug, Clone)]
 pub struct ChannelParams {
     pub endpoint: String,
@@ -43,7 +39,6 @@ pub struct ChannelParams {
     pub rpc_timeout: Duration,
 }
 
-/// mTLS client identity (cert + key PEM, zeroized on drop).
 #[derive(Clone)]
 pub struct ClientIdentity {
     pub cert_pem: Vec<u8>,
@@ -59,14 +54,12 @@ impl std::fmt::Debug for ClientIdentity {
     }
 }
 
-/// Server-certificate verifier: pinned CA, SAN check, TLS 1.3-only (refuse 1.2), fail-closed.
 #[derive(Debug)]
 pub struct Tls13OnlyPinnedVerifier {
     inner: Arc<WebPkiServerVerifier>,
 }
 
 impl Tls13OnlyPinnedVerifier {
-    /// Pin trust to anchors; empty set is refused.
     pub fn new(trust_anchors_der: &[Vec<u8>]) -> Result<Self, MtlsError> {
         if trust_anchors_der.is_empty() {
             return Err(MtlsError::TrustAnchor(
@@ -126,7 +119,6 @@ impl ServerCertVerifier for Tls13OnlyPinnedVerifier {
     }
 }
 
-/// Build server-authenticated bootstrap channel (no client cert).
 pub async fn connect_bootstrap(
     params: &ChannelParams,
     trust_anchors_der: &[Vec<u8>],
@@ -134,7 +126,6 @@ pub async fn connect_bootstrap(
     connect(params, trust_anchors_der, None).await
 }
 
-/// Build mutually-authenticated channel (with client cert).
 pub async fn connect_mtls(
     params: &ChannelParams,
     trust_anchors_der: &[Vec<u8>],
@@ -186,7 +177,6 @@ async fn connect(
     }
 }
 
-/// Parse PEM bundle into DER anchors; empty result is an error.
 pub fn pem_certs_to_der(pem_bytes: &[u8]) -> Result<Vec<Vec<u8>>, MtlsError> {
     let text = std::str::from_utf8(pem_bytes)
         .map_err(|e| MtlsError::TrustAnchor(format!("bootstrap CA is not UTF-8 PEM: {e}")))?;
@@ -204,7 +194,6 @@ pub fn pem_certs_to_der(pem_bytes: &[u8]) -> Result<Vec<Vec<u8>>, MtlsError> {
     Ok(ders)
 }
 
-/// Encode DER certificate as PEM CERTIFICATE block for tonic Identity.
 pub fn cert_der_to_pem(der: &[u8]) -> Vec<u8> {
     pem::encode(&pem::Pem::new("CERTIFICATE", der.to_vec())).into_bytes()
 }

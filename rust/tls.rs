@@ -1,5 +1,3 @@
-//! rustls crypto-provider install.
-
 pub fn install_ring_provider() -> bool {
     if rustls::crypto::CryptoProvider::get_default().is_some() {
         return false;
