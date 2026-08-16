@@ -5,6 +5,25 @@ version here is a **bundle tag** for this repo, independent of (but mapped
 against) the three sub-contracts' own versions — see `README.md` "Tag scheme"
 and `contracts/VERSIONING.md` for what each number means and how it moves.
 
+## v0.3.1 — the comments say only what the schema cannot
+
+A `PATCH` by this repo's own rule: contract-repo-only changes with no effect on any
+consumer's API shape. No field, RPC, endpoint, enum value or constraint moved.
+
+Every comment in the bundle was adjudicated individually — 449 comment blocks, each
+with a recorded verdict — and survived only by stating something the generated code
+does not, or by naming a catch a reasonable edit would break. 1386 comment lines
+became 873. A `.proto` is the specification, so the normative rules stayed: enforced
+ranges, MUST-rejects, single-use constraints, which side allocates a value, what an
+empty value means. Field comments restating a field's name, type or cardinality went.
+
+One correction, and it is why consumers should take this pin. `LockEvent.added` said
+a pushed lock means "the Gateway adds it and immediately tears down any matching live
+session" — unconditionally — while `LockMode` in the same file defines
+`LOCK_MODE_BEST_EFFORT` as "blocks new issuance but does NOT forcibly tear down an
+already-established session". An implementer following the `added` comment would tear
+down exactly the sessions a BEST_EFFORT lock exists to leave running.
+
 ## v0.3.0 — the pin list answers the question an operator actually asks
 
 Three defects found by standing a Control Plane up and driving the API, rather than
