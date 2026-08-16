@@ -36,8 +36,10 @@ message LockEvent {
     // Gateway REPLACES its local set wholesale with this.
     LockSnapshot snapshot = 1;
 
-    // A lock created (or updated) — the Gateway adds it and immediately tears
-    // down any matching live session.
+    // A lock created (or updated) — the Gateway adds it to its deny set, and tears
+    // down matching live sessions only when the lock's mode is STRICT (which is
+    // also how an unset mode is read). A BEST_EFFORT lock blocks new issuance and
+    // leaves established sessions running.
     Lock added = 2;
 
     LockRemoval removed = 3;
