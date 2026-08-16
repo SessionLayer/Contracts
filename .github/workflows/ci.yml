@@ -1,10 +1,9 @@
-# SessionLayer/Contracts CI — the branch-protection required check is the
-# single job `gate`. Do not rename it, add a `name:`, or introduce a matrix:
-# the required status check is literally "gate" and a mismatch hangs
-# auto-merge (same convention as every other SessionLayer repo).
+# The branch-protection required check is the single job `gate`. Do not rename
+# it, add a `name:`, or introduce a matrix: the required status check is
+# literally "gate" and a mismatch hangs auto-merge.
 #
-# All actions are pinned to a full commit SHA (with a version comment) so a
-# moved tag can never change what runs. Least-privilege: read-only token.
+# Every action is pinned to a full commit SHA (with a version comment) so a
+# moved tag can never change what runs.
 name: ci
 
 on:
@@ -26,9 +25,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Full history so contracts/lint.sh can diff proto against the
-          # `main` baseline (buf breaking). On the very first tag there is
-          # nothing to break against yet; lint.sh detects and skips that case.
+          # Full history so contracts/lint.sh can diff the protos against the
+          # `main` baseline (buf breaking).
           fetch-depth: 0
 
       - name: Set up Node 22
