@@ -8,14 +8,14 @@ option java_multiple_files = true;
 option java_package = "io.sessionlayer.controlplane.grpc.v1";
 option java_outer_classname = "LockProto";
 
-// A lock lives on this INDEPENDENT push feed — never a poll that can go
-// stale-open — so every Gateway honours it even under total datastore loss and in
+// A lock lives on this INDEPENDENT push feed - never a poll that can go
+// stale-open - so every Gateway honours it even under total datastore loss and in
 // break-glass mode. Allow-state may fail open; deny-state (a lock) MUST fail
 // closed and win.
 //
 // The WHOLE fleet-wide lock set is delivered to every Gateway; matching a lock
 // against a live session is a purely LOCAL Gateway decision against the signed
-// decision context — the CP does no per-Gateway filtering.
+// decision context - the CP does no per-Gateway filtering.
 service LockFeed {
   // The feed opens with an authoritative SNAPSHOT, then incremental add/remove
   // events, interleaved with periodic heartbeats. On reconnect the Gateway receives
@@ -36,7 +36,7 @@ message LockEvent {
     // Gateway REPLACES its local set wholesale with this.
     LockSnapshot snapshot = 1;
 
-    // A lock created (or updated) — the Gateway adds it to its deny set, and tears
+    // A lock created (or updated) - the Gateway adds it to its deny set, and tears
     // down matching live sessions only when the lock's mode is STRICT (which is
     // also how an unset mode is read). A BEST_EFFORT lock blocks new issuance and
     // leaves established sessions running.
@@ -67,7 +67,7 @@ message Heartbeat {
 }
 
 enum LockMode {
-  // Unset — an older CP that predates this field. The Gateway MUST treat this as
+  // Unset - an older CP that predates this field. The Gateway MUST treat this as
   // STRICT (fail safe): the prior wire had no mode and every lock tore down, so
   // absence keeps that stronger behaviour rather than silently weakening a lock.
   LOCK_MODE_UNSPECIFIED = 0;
@@ -90,7 +90,7 @@ message Lock {
   LockTarget target = 2;
 
   // Absolute expiry (Unix epoch seconds, UTC); 0 = no TTL. A DENY expires
-  // CONSERVATIVELY — the Gateway keeps the lock active until clearly past this
+  // CONSERVATIVELY - the Gateway keeps the lock active until clearly past this
   // (the opposite of a grant, which expires early). An expired lock only stops
   // denying; it never fails open early.
   int64 expires_at_epoch_seconds = 3;
@@ -106,7 +106,7 @@ message Lock {
 }
 
 // Facets are OR-matched. Ingest validation (CP-side) rejects a target with no
-// recognised facet UNLESS `all` is explicitly true — a global lock must be
+// recognised facet UNLESS `all` is explicitly true - a global lock must be
 // intentional, never the result of a typo.
 message LockTarget {
   repeated string identities = 1;

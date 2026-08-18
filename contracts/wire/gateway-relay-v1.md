@@ -1,4 +1,4 @@
-# Gateway ↔ Gateway HA Relay & Coordination — v1 (specification)
+# Gateway ↔ Gateway HA Relay & Coordination - v1 (specification)
 
 **Status:** **FROZEN at protocol 1.0.** Introduced with the High-Availability
 work. Reuses the Agent↔Gateway framing, preface and `ProtocolVersion`
@@ -19,7 +19,7 @@ transport, exchanged **Gateway-to-Gateway**.
 | Mechanism | Carries | Transport |
 |---|---|---|
 | Postgres presence | durable ownership (`node → owner, addr, monotonic nonce`) | CP gRPC (`Presence` + `Authorize`) |
-| `CoordinationBackend` | **signalling only** — one `DialBackSignal` to the owner | NATS (ref) / in-process (single mode) |
+| `CoordinationBackend` | **signalling only** - one `DialBackSignal` to the owner | NATS (ref) / in-process (single mode) |
 | Direct relay | **the node byte stream** | direct on-demand Gateway↔Gateway WSS+mTLS |
 
 **Anti-requirement (normative):** session bytes MUST NEVER traverse the
@@ -34,7 +34,7 @@ the bus sees no session plaintext or ciphertext.
   and runs the inner leg. It is the RELAY **server**.
 - **Owner** gw-B currently holds the target node's agent control channel (per
   presence). It produces the node byte stream (its own local agent dial-back)
-  and is the RELAY **client** — it dials back to the ingress, mirroring the agent
+  and is the RELAY **client** - it dials back to the ingress, mirroring the agent
   dial-back model (the party that can reach the resource dials the party holding
   the client).
 
@@ -52,7 +52,7 @@ gw-A <==== direct relay (STREAM_DATA raw bytes) ====> gw-B <--splice--> node:22
   | inner leg + host-verify + bridge + RECORDER (all at gw-A, unchanged)
 ```
 
-The client is **never redirected**. gw-B runs **no inner leg and no recorder** —
+The client is **never redirected**. gw-B runs **no inner leg and no recorder** -
 it is a dumb byte relay.
 
 ---
@@ -63,7 +63,7 @@ Carriage is **WebSocket over TLS 1.3 with mutual TLS** (`wss://`), on the ingres
 peer-relay listener (the same TLS server that terminates agent connections; the
 internal mTLS CA is the trust anchor). One connection **role**:
 
-- **`/peer/v1/relay`** — a per-session byte relay. The connecting peer (owner)
+- **`/peer/v1/relay`** - a per-session byte relay. The connecting peer (owner)
   presents its **gateway-identity** client certificate (URI SAN
   `sessionlayer://gateway/<id>`), distinguishing it from an agent connection
   (`sessionlayer://agent/<id>`). The ingress binds the connection to the token's
@@ -84,11 +84,11 @@ version. `max_frame_bytes` MUST exceed the inner `max_packet`.
 | `0x01` | `HELLO` | either | `AgentHello` (reused as the generic hello) |
 | `0x02` | `HELLO_ACK` | ingress → owner | `GatewayHelloAck` |
 | `0x03` | `VERSION_REJECT` | ingress → owner | `VersionReject` |
-| `0x24` | `RELAY_OPEN` | owner → ingress | `RelayOpen` — the SLGW1 token |
-| `0x25` | `RELAY_ACCEPT` | ingress → owner | `RelayAccept` — bytes may flow |
-| `0x26` | `RELAY_REJECT` | ingress → owner | `RelayReject` — code; then close (fail closed) |
-| `0x31` | `STREAM_DATA` | either | **raw bytes** — the node stream |
-| `0x32` | `STREAM_CLOSE` | either | `StreamClose` — per-direction half-close |
+| `0x24` | `RELAY_OPEN` | owner → ingress | `RelayOpen` - the SLGW1 token |
+| `0x25` | `RELAY_ACCEPT` | ingress → owner | `RelayAccept` - bytes may flow |
+| `0x26` | `RELAY_REJECT` | ingress → owner | `RelayReject` - code; then close (fail closed) |
+| `0x31` | `STREAM_DATA` | either | **raw bytes** - the node stream |
+| `0x32` | `STREAM_CLOSE` | either | `StreamClose` - per-direction half-close |
 | `0x7E` | `ERROR` | either | `WireError` |
 
 `0x24`–`0x26` were free slots in the shared registry; adding them is additive and
@@ -113,7 +113,7 @@ owner tears down its local splice. A relay that is not accepted within the
 ingress's bounded `relay_timeout` is abandoned and the SSH handshake fails closed
 (a hung peer never hangs the handshake).
 
-## 6. The relay token — SLGW1 (normative)
+## 6. The relay token - SLGW1 (normative)
 
 `SLGW1.<b64url(payload)>.<b64url(sig)>`, ECDSA **P-256 / SHA-256** over
 `"sessionlayer-gw-relay-v1\0" || payload_bytes`. **Verify-then-decode**: the
@@ -122,7 +122,7 @@ signature is checked over the transmitted payload bytes *before* the protobuf
 
 - **Minted and verified by the ingress** with a **per-process** P-256 key (never
   persisted; `signer_fingerprint` in the payload rejects a token from another boot
-  or Gateway) — the exact SLDB1 pattern.
+  or Gateway) - the exact SLDB1 pattern.
 - **Single-use**: consumed from an in-memory pending ledger keyed by `jti`;
   removal *is* consumption. A replay finds nothing.
 - **Bindings, all required** (else `RELAY_REJECT`, fail closed): unexpired
@@ -131,7 +131,7 @@ signature is checked over the transmitted payload bytes *before* the protobuf
   SAN / CN**, NOT the URI-SAN UUID) == `owner_gateway_id`; `session_id`/`node_id`/
   `node_name` match the awaiting session. Cross-owner / cross-session / cross-node /
   expired are refused. `owner_nonce` travels in the token for audit/correlation, but
-  note the **ingress** cannot use it as an anti-stale check — the ingress minted both
+  note the **ingress** cannot use it as an anti-stale check - the ingress minted both
   the token and the pending entry from the same `Authorize`, so an ingress-side
   comparison is self-referential. The anti-stale enforcement is the **owner's**
   obligation (security invariant 6), not this ingress-side compare.
@@ -152,29 +152,29 @@ signature is checked over the transmitted payload bytes *before* the protobuf
 4. **The owner authenticates as a Gateway** (internal-CA cert with a
    `sessionlayer://gateway/<UUID>` URI SAN) and its **`gateway_identity.name`** (the
    dNSName SAN / CN) MUST equal the token's `owner_gateway_id`. The HA owner identity
-   is the NAME throughout (presence, the coordination subject, the token) — the URI
+   is the NAME throughout (presence, the coordination subject, the token) - the URI
    SAN UUID is only the CP's internal resolver key. A compromised or superseded peer
    cannot serve a relay for a node it does not own.
 5. **No live migration**: a relay is per-session; a lost owner fails the
    session fast (client reconnects, cheap via pinned-key silent reconnect).
 6. **The owner MUST re-verify current ownership before serving** (the anti-stale
    obligation). On receiving a `DialBackSignal`, the owner serves the relay only if
-   it *currently* believes it owns the node — i.e. its presence heartbeat loop last
+   it *currently* believes it owns the node - i.e. its presence heartbeat loop last
    returned `is_self_owner` for that node. An owner that has lost ownership (a
    failover advanced the nonce to a standby) MUST refuse; the ingress then hits
    `relay_timeout` and fails closed, and the client's retry re-routes to the true
    owner. The owner's live agent control channel (its local dial-back must succeed)
-   is the liveness backstop for a dead owner. This owner-side recheck — not the
-   ingress-side token compare — is what makes the nonce load-bearing. A CP
+   is the liveness backstop for a dead owner. This owner-side recheck - not the
+   ingress-side token compare - is what makes the nonce load-bearing. A CP
    round-trip at `RELAY_ACCEPT` is deliberately **not** required: in the agent model
    any Gateway holding a live channel serves the correct node, so the cached
    `is_self_owner` belief plus dial-back liveness suffice without a hot-path round-trip.
 
-## 8. Deployment requirement — coordination transport (normative)
+## 8. Deployment requirement - coordination transport (normative)
 
 The SLGW1 relay token travels in the `DialBackSignal` over the CoordinationBackend
 **by design** (only *session bytes* are barred from the bus). The token is safe
-there — redemption additionally requires the owner's mTLS gateway certificate
+there - redemption additionally requires the owner's mTLS gateway certificate
 (security invariant 4), so a bus eavesdropper cannot use a captured token. As
 defense-in-depth, an HA deployment MUST run the coordination bus (NATS)
 **mutually authenticated, encrypted (TLS), and subject-authorized**, where the
@@ -188,7 +188,7 @@ nonce and caps concurrent served relays per node (security invariant 6), but
 publish-authz is the first line.
 
 **On the reference client:** the bundled NATS backend is a minimal **core** pub/sub
-client that connects in **plaintext with an unauthenticated CONNECT** — it targets a
+client that connects in **plaintext with an unauthenticated CONNECT** - it targets a
 **trusted internal network** and is deliberately dependency-free: hand-rolling it
 keeps an entire TLS stack out of the dependency graph. It therefore **cannot itself
 meet the TLS/auth mandate above**: a production deployment provides TLS + authentication via a

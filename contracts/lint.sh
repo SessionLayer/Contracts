@@ -24,12 +24,12 @@ for r in origin/main main; do
 done
 if [ -z "$base_ref" ]; then
   if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
-    red "    buf breaking: FAILED — no 'main' ref available in CI (checkout likely missing fetch-depth: 0)"
+    red "    buf breaking: FAILED - no 'main' ref available in CI (checkout likely missing fetch-depth: 0)"
     exit 1
   fi
-  grn "    buf breaking: no 'main' ref available locally (shallow checkout) — skipped"
+  grn "    buf breaking: no 'main' ref available locally (shallow checkout) - skipped"
 elif ! git -C "$here" cat-file -e "${base_ref}:contracts/proto/buf.yaml" 2>/dev/null; then
-  grn "    buf breaking: 'main' has no contracts/proto baseline yet (first introduction) — skipped"
+  grn "    buf breaking: 'main' has no contracts/proto baseline yet (first introduction) - skipped"
 else
   base_sha="$(git -C "$here" rev-parse "${base_ref}")"
   ( cd proto && buf breaking --against "${repo_root}/.git#ref=${base_sha},subdir=contracts/proto" )

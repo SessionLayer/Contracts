@@ -1,4 +1,4 @@
-// Wire-conformance consumer test — drop into each Rust repo's `tests/` (e.g.
+// Wire-conformance consumer test - drop into each Rust repo's `tests/` (e.g.
 // `tests/wire_conformance.rs`) and vendor `frames.json` next to the vendored protos.
 //
 // It runs the frozen golden frames through the repo's OWN codec, so each repo's CI catches

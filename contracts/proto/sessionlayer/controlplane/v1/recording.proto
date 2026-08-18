@@ -8,19 +8,19 @@ option java_outer_classname = "RecordingProto";
 
 // The Gateway captures AND ENCRYPTS the recording under a customer-held key and
 // uploads the ciphertext DIRECTLY to the WORM store with the credential this
-// service issues — bytes NEVER proxy through the Control Plane. The CP owns
+// service issues - bytes NEVER proxy through the Control Plane. The CP owns
 // metadata, policy (WORM mode + retention), the customer-key reference, and the
 // correlated audit trail; it never sees recording plaintext nor the data key.
 //
 // PER-RPC, SESSION-BOUND AUTHORIZATION. mTLS authenticates the calling Gateway.
 // BeginRecording additionally consumes the single-use recording_token minted by
-// Authorize ALLOW (bound to {gateway_id, session_id, node, principal, exp}) —
+// Authorize ALLOW (bound to {gateway_id, session_id, node, principal, exp}) -
 // the sole per-request authority, so a Gateway can never register a recording
 // for a session it does not broker. FinalizeRecording is authorized by the mTLS
 // caller owning the recording_id it created.
-// Lifecycle: BeginRecording (at session start — the Gateway needs the customer
+// Lifecycle: BeginRecording (at session start - the Gateway needs the customer
 // key to encrypt from the first byte) → RequestUpload (at session end, just
-// before the PUT — so the single-object upload credential is issued SHORT-LIVED
+// before the PUT - so the single-object upload credential is issued SHORT-LIVED
 // at upload time, never a session-long credential) → the Gateway PUTs the
 // ciphertext directly to the WORM store → FinalizeRecording.
 service Recording {
@@ -51,7 +51,7 @@ enum RecordingStatus {
   RECORDING_STATUS_FINALIZED = 1;
   RECORDING_STATUS_TRUNCATED = 2;
   // Capture or upload failed; there is no usable object (the session's failure is
-  // recorded loudly in the audit stream — never silently dropped).
+  // recorded loudly in the audit stream - never silently dropped).
   RECORDING_STATUS_FAILED = 3;
 }
 
@@ -100,7 +100,7 @@ message RequestUploadResponse {
 }
 
 // CustomerKey is the operator-configured customer public key material. Public
-// material only — the CP never holds the private half, so a platform operator
+// material only - the CP never holds the private half, so a platform operator
 // cannot decrypt the recording (the crown-jewels invariant).
 message CustomerKey {
   string key_ref = 1;
@@ -117,7 +117,7 @@ message UploadCredential {
 
   string method = 2;
 
-  // Headers the Gateway MUST send verbatim — they are part of the signature
+  // Headers the Gateway MUST send verbatim - they are part of the signature
   // (e.g. the object-lock mode + retain-until-date that make the object WORM, and
   // any content headers). Sending a different value breaks the signature, so the
   // WORM lock cannot be stripped by the uploader (fail closed).
@@ -141,25 +141,25 @@ message FinalizeRecordingRequest {
 
   int64 byte_len = 5;
 
-  // Per-operation SFTP/SCP file-transfer audit — path, direction, size, streaming
+  // Per-operation SFTP/SCP file-transfer audit - path, direction, size, streaming
   // SHA-256 of the transferred content. METADATA ONLY; file content is never
   // captured. Correlated into the audit_event stream.
   repeated FileTransferAudit sftp_audit = 6;
 
   // The object-store version id (S3 `x-amz-version-id`) of the ciphertext object
   // the Gateway actually PUT. Written write-once to recording_ref.object_version_id
-  // and pinned by replay/export so they serve THIS finalized version — not a later
+  // and pinned by replay/export so they serve THIS finalized version - not a later
   // shadow PUT to the same key by a compromised CP/Gateway (WORM Object Lock
   // protects a version, not the key from new versions). Additive/N-1:
   // an older Gateway omits it → the CP stores null and replay falls back to the
   // unversioned GET (pre-fix behaviour) until both peers are upgraded.
   string object_version_id = 7;
 
-  // Per-tunnel (port-forward/X11) audit — target/direction/capability + byte
+  // Per-tunnel (port-forward/X11) audit - target/direction/capability + byte
   // counters, correlated into the audit_event stream.
   // METADATA ONLY: forwarded bytes are arbitrary/binary with no universal
   // decode (unlike SFTP's known wire format), so unlike `sftp_audit` there is no
-  // content digest here — just the open/close facts.
+  // content digest here - just the open/close facts.
   repeated TunnelAudit tunnel_audit = 8;
 }
 
@@ -176,7 +176,7 @@ message FileTransferAudit {
 }
 
 message TunnelAudit {
-  // "port_forward_local" | "port_forward_remote" | "x11" — the capability that
+  // "port_forward_local" | "port_forward_remote" | "x11" - the capability that
   // admitted this tunnel.
   string capability = 1;
   string direction = 2;

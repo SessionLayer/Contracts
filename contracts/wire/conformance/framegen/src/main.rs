@@ -377,7 +377,7 @@ fn main() {
     let out = Vectors {
         schema: "sessionlayer.wire.conformance/v1",
         note: "Golden wire frames, generated from a known-correct codec (prost over the frozen \
-               proto + the frozen 6-byte framing) and self-checked. DO NOT hand-edit — \
+               proto + the frozen 6-byte framing) and self-checked. DO NOT hand-edit - \
                regenerate via `cargo run` in gen/ when the contract changes. Consumed by both \
                Rust repos' CI (see README.md).",
         wire_version: "1.0",

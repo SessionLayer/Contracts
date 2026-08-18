@@ -7,12 +7,12 @@ option java_package = "io.sessionlayer.controlplane.grpc.v1";
 option java_outer_classname = "PresenceProto";
 
 // runtime.presence (node -> owning_gateway, addr, monotonic nonce) is authoritative
-// in Postgres in BOTH single-instance and HA modes — only the signalling transport
+// in Postgres in BOTH single-instance and HA modes - only the signalling transport
 // differs. The Gateway has no database access; it heartbeats and releases ownership
 // through this service so the CP stays the sole Postgres owner. `LISTEN/NOTIFY` is
 // NOT used (global commit-lock).
 //
-// The OWNER is the authenticated mTLS peer, NEVER a request field — a Gateway can
+// The OWNER is the authenticated mTLS peer, NEVER a request field - a Gateway can
 // only claim/refresh/release ownership for itself.
 //
 // The routing READ path is folded into Authorization.Authorize (NodeConnection owner
@@ -38,7 +38,7 @@ service Presence {
 
 message PresenceHeartbeatRequest {
   // The node whose ownership is being claimed/refreshed, identified by its stable
-  // enrollment NAME (runtime.node.name) — NOT its UUID: the Gateway has no database
+  // enrollment NAME (runtime.node.name) - NOT its UUID: the Gateway has no database
   // and knows its owned nodes only by the name it reads from each agent's mTLS
   // dNSName SAN. The CP resolves the name to the node row and keys runtime.presence
   // by the resolved runtime.node.id; an unknown name is refused (fail closed).
@@ -47,7 +47,7 @@ message PresenceHeartbeatRequest {
   // The caller's peer-relay advertise address (host:port) that a peer ingress
   // Gateway would be told to expect the relay dial-back from. Stored as
   // presence.gateway_addr. The OWNER identity itself is the authenticated mTLS
-  // peer gateway_id — never taken from this message.
+  // peer gateway_id - never taken from this message.
   string gateway_addr = 2;
 }
 

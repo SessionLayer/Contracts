@@ -12,8 +12,8 @@ option java_outer_classname = "IdentityProto";
 // EnrollGateway: a Gateway that has not yet enrolled has no CP-issued client
 // certificate, so EnrollGateway is authenticated by the single-use enrollment
 // token instead (the documented bootstrap exception). Every other RPC on this
-// plane — RenewGatewayIdentity, Handshake.Negotiate for an enrolled peer, and
-// SessionSigning.SignSessionCertificate — is refused without a valid client
+// plane - RenewGatewayIdentity, Handshake.Negotiate for an enrolled peer, and
+// SessionSigning.SignSessionCertificate - is refused without a valid client
 // certificate chained to the internal CA that resolves to an active, unlocked
 // gateway_identity. All rejection paths fail closed.
 //
@@ -29,13 +29,13 @@ service GatewayIdentity {
   // renews AHEAD of expiry, never at it.
   rpc RenewGatewayIdentity(RenewGatewayIdentityRequest) returns (RenewGatewayIdentityResponse);
 
-  // The identity certificate from Enroll/Renew is stamped clientAuth — exactly one
-  // EKU per leaf, by design — so it cannot serve TLS: an Agent validating it as a
+  // The identity certificate from Enroll/Renew is stamped clientAuth - exactly one
+  // EKU per leaf, by design - so it cannot serve TLS: an Agent validating it as a
   // server certificate would (correctly) reject it. Agents must verify the Gateway
   // against an anchor they already hold (the internal mTLS CA) rather than trust it
   // on first use, so the Gateway needs a genuine serverAuth leaf from that same CA.
   //
-  // The CP — not the caller — chooses the certificate's SANs, stamping them from the
+  // The CP - not the caller - chooses the certificate's SANs, stamping them from the
   // gateway_identity row it already holds. A Gateway therefore cannot obtain a server
   // certificate for a name it does not own, even if compromised. The Gateway generates
   // a SEPARATE keypair for this leaf and sends only a CSR.
@@ -104,7 +104,7 @@ message IssueGatewayServerCertificateRequest {
 
 // IssueGatewayServerCertificateResponse returns the serverAuth leaf. There is no
 // generation counter: this certificate is not an identity, it is a TLS server
-// credential derived from one. Revocation is by locking the gateway_identity —
+// credential derived from one. Revocation is by locking the gateway_identity -
 // the CP then refuses to reissue, and the leaf expires.
 message IssueGatewayServerCertificateResponse {
   // The issued serverAuth X.509 leaf (DER). Its SANs are chosen by the CP from

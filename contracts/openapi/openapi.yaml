@@ -47,12 +47,12 @@ tags:
     description: >-
       First-admin bootstrap. Single-use claim of a
       printed-once credential, seeding the initial `platform-admin`
-      role-binding; self-disables once a platform admin exists. Public — like
+      role-binding; self-disables once a platform admin exists. Public - like
       the device-flow poll endpoint, the credential itself is the
       authenticator, not a bearer/mTLS scheme.
   - name: auth
     description: >-
-      Runtime credential issuance and revocation —
+      Runtime credential issuance and revocation -
       machine tokens, OTPs, public-key pins, service-account credentials, and the
       OIDC device flow. These are the ISSUED credentials; the definitions they
       belong to live under `service-accounts`. Gating varies by operation and is
@@ -61,7 +61,7 @@ tags:
       because the device code is itself the authenticator.
   - name: nodes
     description: >-
-      Node lifecycle — agentless enrollment, listing, host-anchor repair,
+      Node lifecycle - agentless enrollment, listing, host-anchor repair,
       quarantine (a Lock), and remove (deregister + agent-credential revoke).
       Platform-RBAC gated (`node:enroll`/`node:quarantine`/
       `node:remove`) and audited; provisioning is an API flow.
@@ -84,11 +84,11 @@ tags:
   - name: gateways
     description: >-
       Enrolled Gateway identities (`runtime.gateway_identity`).
-      Metadata only — NEVER certificates and never key material.
+      Metadata only - NEVER certificates and never key material.
       Reads gated (`gateway:enroll`), matching `nodes`, whose list is gated
       `node:enroll` rather than the generic reader: names, fingerprints and node
       ownership are fleet-targeting metadata. Removal, which frees the name for
-      re-enrollment, is gated (`gateway:remove`) + audited — enrollment and
+      re-enrollment, is gated (`gateway:remove`) + audited - enrollment and
       removal are separate verbs for the same reason `node:enroll` and
       `node:remove` are.
   - name: jit-requests
@@ -121,9 +121,9 @@ tags:
       Certificate-authority config CRUD + rotation (`config.ca_config`).
       NEVER exposes private key material; gated
       (`ca:manage`/`ca:rotate`) + audited. Two read-only siblings export PUBLIC
-      verification material for the components that must pin it — the internal
+      verification material for the components that must pin it - the internal
       mTLS trust anchor (`gateway:enroll`) and an SSH CA's public key
-      (`node:enroll`) — deliberately gated on the enrollment permission the job
+      (`node:enroll`) - deliberately gated on the enrollment permission the job
       needs rather than on CA administration.
   - name: service-accounts
     description: >-
@@ -150,12 +150,12 @@ tags:
     description: >-
       Session-limit-policy CRUD (`config.session_limit_policy`).
       Per-identity overrides for the concurrent-session cap, max session
-      duration, and idle timeout — enforced at Authorize (cap + duration) and
+      duration, and idle timeout - enforced at Authorize (cap + duration) and
       the Gateway (idle, signed into the decision context). Reads gated
       (`rbac:read`); writes gated (`settings:write`) + audited.
   - name: operator-settings
     description: >-
-      Cluster-wide operator settings (`config.operator_settings`) —
+      Cluster-wide operator settings (`config.operator_settings`) -
       retention/WORM/OTP defaults, the session-limit cluster
       defaults, and the customer recording key. A DB-enforced singleton, so the
       shape is `GET`/`PUT` on one resource rather than a collection. Reads gated
@@ -171,7 +171,7 @@ tags:
     description: >-
       Concurrency-lease diagnosis and release (`runtime.session_lease`).
       A lease that outlives its session still occupies a slot, and
-      the resulting refusal reaches the user as a generic policy denial — so the
+      the resulting refusal reaches the user as a generic policy denial - so the
       read half is the diagnostic that tells an over-count apart from a real
       deny. A lease counts while it is unreleased AND unexpired, so the ghost to
       look for is one that still counts with no live session behind it. Read
@@ -266,7 +266,7 @@ paths:
       description: |
         Surrenders the credential printed once to the CP's own log at cold
         start, binding `subject` as the initial `platform-admin`.
-        Public and unauthenticated by scheme — the credential
+        Public and unauthenticated by scheme - the credential
         itself is the authenticator, matching `POST /v1/auth/device/poll`'s
         opaque-device-code model. Single-use: the underlying
         `operator_settings.bootstrap_completed` flip is a single
@@ -274,7 +274,7 @@ paths:
         not it knows the correct credential) always observes
         `already_completed`, never a second provision. Self-disables
         entirely once any platform admin exists (a config-named admin
-        subject, or a prior successful claim) — no credential is ever armed
+        subject, or a prior successful claim) - no credential is ever armed
         again, so this operation can succeed at most once per deployment.
         Every attempt is audited, including invalid-credential attempts.
       tags:
@@ -327,9 +327,9 @@ paths:
       operationId: issueMachineToken
       summary: OAuth 2.0 client-credentials token endpoint (machine identity).
       description: |
-        Machine consumers exchange a client credential — a `private_key_jwt`
+        Machine consumers exchange a client credential - a `private_key_jwt`
         client assertion (RFC 7523) or a mutual-TLS client certificate,
-        preferred over a static secret — for a short-lived CP-signed bearer
+        preferred over a static secret - for a short-lived CP-signed bearer
         token. The token resolves to a first-class
         RBAC principal. The client authenticates itself here, so the endpoint is
         not behind the bearer/mTLS API gate; the `clientCredentials`/`mtls`
@@ -393,7 +393,7 @@ paths:
       operationId: listPins
       summary: List live pins (admin).
       description: |
-        Lists ACTIVE pins — every one by default, or a single identity's when
+        Lists ACTIVE pins - every one by default, or a single identity's when
         `identity` is given. The unfiltered form is the one offboarding and incident
         review need, where the questions are "which pins exist right now" and "who
         still holds one"; requiring the identity up front assumed the caller already
@@ -521,7 +521,7 @@ paths:
       summary: Revoke a machine-consumer credential (admin).
       description: |
         Revocation takes effect immediately (new sessions denied). The service
-        account itself survives — this withdraws one credential, so a compromised
+        account itself survives - this withdraws one credential, so a compromised
         key is retired without deleting the consumer that holds the rest.
         Platform-RBAC gated (`user:manage`) + audited.
       tags:
@@ -667,7 +667,7 @@ paths:
       summary: Release a lock (admin).
       description: |
         Releases (deletes) a lock; the removal is pushed to every Gateway.
-        Releasing a lock only stops future denial — it never resurrects a
+        Releasing a lock only stops future denial - it never resurrects a
         torn-down session. Platform-RBAC gated (`lock:write`) + audited.
       tags:
         - locks
@@ -693,7 +693,7 @@ paths:
       summary: List active join tokens (admin).
       description: |
         Lists the current unconsumed, unexpired join tokens. The raw token value
-        is NEVER returned (only its metadata) — it is shown exactly once at
+        is NEVER returned (only its metadata) - it is shown exactly once at
         issuance. Platform-RBAC gated (`node:enroll`) + audited.
       tags:
         - join-tokens
@@ -793,8 +793,8 @@ paths:
       summary: Register an agentless node (admin).
       description: |
         Enrolls an AGENTLESS node: registers its dial
-        address and host-identity material — a host-CA-signed host certificate OR
-        an explicitly pinned host key (at least one; NEVER TOFU) — with no software
+        address and host-identity material - a host-CA-signed host certificate OR
+        an explicitly pinned host key (at least one; NEVER TOFU) - with no software
         install. An agent node instead joins via a join token
         (`POST /v1/join-tokens`). Enrollment MAY require approval (operator
         setting): when on, the node starts `pending` and is excluded from targeting
@@ -856,7 +856,7 @@ paths:
       description: |
         Deregisters the node (soft-remove: status `removed`, excluded from
         targeting; session/audit history preserved) and, for an AGENT node, REVOKES
-        its agent credential — the identity is flipped off `active` and a covering
+        its agent credential - the identity is flipped off `active` and a covering
         Lock is pushed, so the generation counter + lock make a stale clone
         unusable and re-join cannot bypass the revocation. Idempotent.
         Platform-RBAC gated (`node:remove`) + audited.
@@ -885,7 +885,7 @@ paths:
       description: |
         Immediately blocks NEW sessions to the node and tears down or drains
         EXISTING ones, expressed as a top-tier Lock on the node
-        (deny wins) actively pushed to every Gateway — fail-closed. The
+        (deny wins) actively pushed to every Gateway - fail-closed. The
         `existingSessions` policy selects `kill` (default, torn down at once) vs
         `drain` (finish, no new channels). Platform-RBAC gated (`node:quarantine`)
         + audited.
@@ -960,7 +960,7 @@ paths:
       operationId: getNodeHostAnchors
       summary: Get a node's host-identity anchors (admin).
       description: |
-        Returns the node's current host-identity anchors — the host-CA-signed host
+        Returns the node's current host-identity anchors - the host-CA-signed host
         certificate and the pinned host keys the Gateway verifies the node's
         presented host identity against before any inner-leg auth. Public material
         only; an anchor is a certificate or a public key and has no private half to
@@ -991,7 +991,7 @@ paths:
         whole anchor set and whatever was recorded before is dropped in the same
         transaction, so no window exists in which the node is anchorless or still
         trusts a superseded key. This is the repair path for a node that has NO
-        anchor — an Agent joining under a name nobody registered has its node
+        anchor - an Agent joining under a name nobody registered has its node
         auto-created without one, and every session to it then aborts on host
         verification. At least one of `hostCertificate` / `pinnedHostKey` is
         required; an empty anchor set is rejected (`422`), because a node with no
@@ -999,9 +999,9 @@ paths:
         malformed key or certificate line is likewise a `422`. A full replace, so it
         is idempotent by desired state. Refused (`409`) for a `removed` node:
         removal is terminal, and a removed node is not repaired but replaced by a
-        fresh registration under a new name. Platform-RBAC gated (`node:enroll`) — the
+        fresh registration under a new name. Platform-RBAC gated (`node:enroll`) - the
         same permission that writes these anchors during registration, because this
-        writes exactly what registration writes — and audited.
+        writes exactly what registration writes - and audited.
       tags:
         - nodes
       parameters:
@@ -1065,7 +1065,7 @@ paths:
       summary: Submit a JIT access request.
       description: |
         Requests just-in-time access to a target node as a principal for a bounded
-        duration. Open to any authenticated principal — the
+        duration. Open to any authenticated principal - the
         requester is recorded from the authenticated caller, never a body field. The
         matching JIT policy's approval chain is snapshotted; a zero-level chain
         auto-approves (but a Lock still denies on use). Audited.
@@ -1096,7 +1096,7 @@ paths:
       summary: Get a JIT request (admin).
       description: |
         Returns one JIT request with its current state and the approval chain
-        snapshotted at submission — what an approver reads before deciding, and what
+        snapshotted at submission - what an approver reads before deciding, and what
         an auditor reads afterwards to see the chain as it stood, not as the policy
         has since been edited. Platform-RBAC gated (`request:approve`).
       tags:
@@ -1260,7 +1260,7 @@ paths:
       summary: Register a break-glass FIDO2 key (admin).
       description: |
         Registers a break-glass FIDO2 `sk-ecdsa` PUBLIC key.
-        Attestation is not required — an admin vouches for the key; only PUBLIC
+        Attestation is not required - an admin vouches for the key; only PUBLIC
         material and the SHA-256 fingerprint are stored. Platform-RBAC gated
         (`breakglass:manage`) + audited.
       tags:
@@ -1427,7 +1427,7 @@ paths:
       operationId: listRules
       summary: List data-plane rules (admin).
       description: |
-        Lists data-plane RBAC rules (`config.dp_rule`) — the typed allow/deny
+        Lists data-plane RBAC rules (`config.dp_rule`) - the typed allow/deny
         grants the engine evaluates. A committed deny that
         must persist is a rule; "deny now and keep it" is a runtime `Lock`, not a
         rule. Cursor-paginated. Platform-RBAC gated (`rbac:read`).
@@ -1545,7 +1545,7 @@ paths:
       operationId: deleteRule
       summary: Delete a data-plane rule (admin).
       description: |
-        Deletes a rule (idempotent — `204` whether or not it existed).
+        Deletes a rule (idempotent - `204` whether or not it existed).
         Platform-RBAC gated (`rbac:write`) + audited.
       tags:
         - rules
@@ -1561,7 +1561,7 @@ paths:
       operationId: listRoles
       summary: List platform roles (admin).
       description: |
-        Lists platform-RBAC roles (`config.platform_role`) — named sets
+        Lists platform-RBAC roles (`config.platform_role`) - named sets
         of the closed platform-permission vocabulary. Cursor-paginated.
         Platform-RBAC gated (`rbac:read`).
       tags:
@@ -1691,7 +1691,7 @@ paths:
       operationId: listRoleBindings
       summary: List role bindings (admin).
       description: |
-        Lists platform role bindings (`config.role_binding`) — subject
+        Lists platform role bindings (`config.role_binding`) - subject
         (user|group) -> role, optionally scoped for `recording:replay/export`.
         Cursor-paginated. Platform-RBAC gated (`rbac:read`).
       tags:
@@ -1772,7 +1772,7 @@ paths:
       operationId: updateRoleBinding
       summary: Update a role binding (admin).
       description: |
-        Replaces a binding's scope (the subject and role are immutable — rebind by
+        Replaces a binding's scope (the subject and role are immutable - rebind by
         delete + create). A stale `version` is a `409`. Platform-RBAC gated
         (`rbac:write`) + audited.
       tags:
@@ -1820,7 +1820,7 @@ paths:
       operationId: listCas
       summary: List certificate authorities (admin).
       description: |
-        Lists CA configurations (`config.ca_config`) — per-CA
+        Lists CA configurations (`config.ca_config`) - per-CA
         (user|session|host) backend + key REFERENCE and rotation state. NEVER
         exposes private key material. Cursor-paginated. Platform-RBAC
         gated (`ca:manage`).
@@ -1855,7 +1855,7 @@ paths:
         **This is not how you adopt a new backend.** Cold start provisions an
         active CA of each kind and only one active CA per kind is permitted, so on
         any Control Plane that has booted, a create for an existing kind is a `409`
-        naming `POST /v1/cas/{caId}/rotate` — which is the path that both installs
+        naming `POST /v1/cas/{caId}/rotate` - which is the path that both installs
         the new key and keeps the old one trusted while the fleet catches up. This
         operation remains for a kind that has no active CA at all.
       tags:
@@ -1915,7 +1915,7 @@ paths:
       description: |
         Updates a CA configuration's backend/keyReference/algorithm (the `name` and
         `caKind` are immutable; `rotationState` is managed by the rotation state
-        machine, not editable here — use rotate). An algorithm/backend mismatch is
+        machine, not editable here - use rotate). An algorithm/backend mismatch is
         a `422`; a stale `version` is a `409`. Platform-RBAC gated (`ca:manage`) +
         audited.
       tags:
@@ -1950,7 +1950,7 @@ paths:
       summary: Delete a CA configuration (admin).
       description: |
         Deletes a CA configuration (idempotent). Deleting the sole `active` CA of a
-        kind is rejected (`409`) — a kind must always retain a signer. Platform-RBAC
+        kind is rejected (`409`) - a kind must always retain a signer. Platform-RBAC
         gated (`ca:manage`) + audited.
       tags:
         - cas
@@ -2017,7 +2017,7 @@ paths:
       summary: Export the internal mTLS CA trust anchor (admin).
       description: |
         Returns the PEM-encoded X.509 **certificate** of the active internal mTLS
-        CA — the trust anchor a Gateway pins to verify the Control Plane on the
+        CA - the trust anchor a Gateway pins to verify the Control Plane on the
         CP↔Gateway plane. This is public material: it
         reads `runtime.ca_key_material.ca_certificate` and nothing else, and the
         wrapped private key is never touched, unwrapped, or returned.
@@ -2054,7 +2054,7 @@ paths:
         Returns the PUBLIC key of the active CA of one SSH kind, in the two forms
         an operator actually needs: the DER SubjectPublicKeyInfo (base64) and the
         OpenSSH one-line authorized-key form. Installing a node requires the
-        session CA's public key in `TrustedUserCAKeys` — without an export path
+        session CA's public key in `TrustedUserCAKeys` - without an export path
         the only source is a `SELECT` against `runtime.ca_key_material` as the
         database owner, on the path every node install must walk.
 
@@ -2063,14 +2063,14 @@ paths:
         routes through the backend unwrap path.
 
         `caKind` is one of the three SSH kinds (`user`, `session`, `host`). The
-        internal mTLS CA is not addressable here — it is not a member of this
-        collection and its trust anchor has its own sibling path — so `mtls` is
+        internal mTLS CA is not addressable here - it is not a member of this
+        collection and its trust anchor has its own sibling path - so `mtls` is
         not an accepted value (`400`). Platform-RBAC gated (`node:enroll`), the
         permission installing a node already requires.
 
         If the active CA of that kind carries an algorithm that has no OpenSSH
-        key type — a row predating the create-time check, or one written directly
-        to the database — the export REFUSES with `409` rather than emitting a
+        key type - a row predating the create-time check, or one written directly
+        to the database - the export REFUSES with `409` rather than emitting a
         line it cannot honestly label. Guessing would put a wrong
         `ecdsa-sha2-nistp256` line into `TrustedUserCAKeys` on every node, and
         that failure surfaces at session time, everywhere at once, with nothing
@@ -2101,7 +2101,7 @@ paths:
       summary: List active Gateway enrollment tokens (admin).
       description: |
         Lists the current unconsumed, unexpired Gateway enrollment tokens. The raw
-        token value is NEVER returned (only its metadata) — it is shown exactly
+        token value is NEVER returned (only its metadata) - it is shown exactly
         once at issuance. Platform-RBAC gated (`gateway:enroll`) + audited.
       tags:
         - gateway-enrollment-tokens
@@ -2162,7 +2162,7 @@ paths:
         row: `cp_runtime` holds no DELETE on `runtime.gateway_enrollment_token`
         (V15 least-privilege), and the enrollment path already refuses a consumed
         token. Revoking an already-used token has no effect on the identity it
-        produced — revoking an issued Gateway identity is a Lock. Platform-RBAC
+        produced - revoking an issued Gateway identity is a Lock. Platform-RBAC
         gated (`gateway:enroll`) + audited.
       tags:
         - gateway-enrollment-tokens
@@ -2191,7 +2191,7 @@ paths:
         identity's validity window, and how many node control channels it
         currently owns. Cursor-paginated.
 
-        Metadata ONLY. No certificate, no key reference, no key material — a
+        Metadata ONLY. No certificate, no key reference, no key material - a
         Gateway's mTLS identity reference is not part of this projection and
         cannot be derived from it.
 
@@ -2439,7 +2439,7 @@ paths:
       operationId: listNodePolicies
       summary: List node policies (admin).
       description: |
-        Lists node policies (`config.node_policy`) — desired labels,
+        Lists node policies (`config.node_policy`) - desired labels,
         connector kind, and declared host-trust references. Cursor-paginated.
         Platform-RBAC gated (`settings:write`).
       tags:
@@ -2694,7 +2694,7 @@ paths:
       operationId: listJitPolicies
       summary: List JIT policies (admin).
       description: |
-        Lists JIT-requestable policies (`config.jit_policy`) — requestable
+        Lists JIT-requestable policies (`config.jit_policy`) - requestable
         targets, capabilities, max TTL, and the 0-3 level approval chain.
         Cursor-paginated. Platform-RBAC gated (`settings:write`).
       tags:
@@ -2823,7 +2823,7 @@ paths:
       operationId: listBreakglassPolicies
       summary: List break-glass policies (admin).
       description: |
-        Lists break-glass policies (`config.breakglass_policy`) —
+        Lists break-glass policies (`config.breakglass_policy`) -
         recording-strict, alert target, review-required, and the IdP-independent
         auth path. Cursor-paginated. Platform-RBAC gated (`breakglass:manage`).
       tags:
@@ -2953,7 +2953,7 @@ paths:
       summary: List session-limit policies (admin).
       description: |
         Lists per-identity session-limit policies
-        (`config.session_limit_policy`) — overrides for the concurrent-session
+        (`config.session_limit_policy`) - overrides for the concurrent-session
         cap, max session duration, and idle timeout. When several policies match
         an identity the most restrictive value wins per knob; the `operator_settings` cluster
         defaults apply where no policy matches. Cursor-paginated. Platform-RBAC
@@ -3039,7 +3039,7 @@ paths:
       description: |
         Replaces the mutable fields of a session-limit policy (the `name` is
         immutable). Invalid config is rejected pre-commit (`422`). The `version`
-        is required and must match (optimistic concurrency — a stale version is
+        is required and must match (optimistic concurrency - a stale version is
         a `409`). Platform-RBAC gated (`settings:write`) + audited.
       tags:
         - session-limit-policies
@@ -3072,7 +3072,7 @@ paths:
       operationId: deleteSessionLimitPolicy
       summary: Delete a session-limit policy (admin).
       description: |
-        Deletes a session-limit policy (idempotent — `204` whether or not it
+        Deletes a session-limit policy (idempotent - `204` whether or not it
         existed). Enforcement falls back to the remaining policies / cluster
         defaults from the next decision. Platform-RBAC gated (`settings:write`)
         + audited.
@@ -3090,7 +3090,7 @@ paths:
       operationId: getOperatorSettings
       summary: Get the cluster operator settings (admin).
       description: |
-        Returns the cluster-wide operator settings (`config.operator_settings`) —
+        Returns the cluster-wide operator settings (`config.operator_settings`) -
         audit/recording retention, the WORM default for new recordings, the OTP
         TTL, the session-limit cluster defaults, and whether the
         customer recording key is provisioned. The row is a singleton written by
@@ -3100,7 +3100,7 @@ paths:
         key-encryption-key reference is NEVER returned, for two independent
         reasons. It is dead: no code path reads or writes that column, and the
         key-encryption reference that is actually live is a deployment property
-        persisted per key alongside the key material it wraps — so exposing this
+        persisted per key alongside the key material it wraps - so exposing this
         one would ship a knob an operator could set and reasonably believe had
         repointed the KEK. And were it ever wired up, its whole content would be
         *where the platform's most sensitive key lives*, which is a targeting
@@ -3129,14 +3129,14 @@ paths:
       summary: Update the cluster operator settings (admin).
       description: |
         Replaces the writable operator settings. The `version` is required and
-        must match (optimistic concurrency — a stale version is a `409`). The
+        must match (optimistic concurrency - a stale version is a `409`). The
         `origin` is server-set to `api`. Platform-RBAC gated (`settings:write`),
         audited before/after.
 
         **The evidence-retention knobs move one way only.** `auditRetentionDays`
         and `recordingRetentionDays` accept an increase or an unchanged value,
         and `defaultWormMode` accepts `governance` -> `compliance`; the opposite
-        direction is a `422` — at this scope and at every other. Shortening audit
+        direction is a `422` - at this scope and at every other. Shortening audit
         retention makes the next prune drop partitions it would otherwise have
         kept, shortening recording retention shortens the object-lock
         retain-until stamped on new recordings, and `compliance` ->
@@ -3189,7 +3189,7 @@ paths:
       operationId: getRecordingCustomerKey
       summary: Get the customer recording key (admin).
       description: |
-        Returns the provisioned customer recording key — PUBLIC material only.
+        Returns the provisioned customer recording key - PUBLIC material only.
         The Gateway seals every per-recording data key to
         this public key and the private half never reaches the platform, so the
         platform cannot decrypt its own recordings.
@@ -3215,7 +3215,7 @@ paths:
       summary: Provision or rotate the customer recording key (admin, privileged).
       description: |
         Provisions the customer recording key, or rotates it. With strict
-        recording on — the shipped default — a Control Plane with no key refuses
+        recording on - the shipped default - a Control Plane with no key refuses
         every session, so this is the operation that lets a first install be
         completed holding an API credential rather than a database one.
 
@@ -3232,7 +3232,7 @@ paths:
         it writes anything: the submission must base64-decode to a non-empty DER
         SubjectPublicKeyInfo of at most 8 KiB, must not be private key material
         in any encoding (PKCS#8 `PrivateKeyInfo`, SEC1 `ECPrivateKey`, or PEM
-        text of any kind), and must match `sealAlgorithm` — EC on P-256 for
+        text of any kind), and must match `sealAlgorithm` - EC on P-256 for
         `ecies_p256`, RSA for `rsa_oaep_sha256`. Each failure is a `422` that
         says which, so a curve mismatch surfaces here rather than as a
         fail-closed session at the worst possible moment. `keyRef` is a reference
@@ -3240,8 +3240,8 @@ paths:
 
         **Rotation is allowed and it is not quiet.** Every recording sealed under
         the outgoing key remains readable only by the outgoing private key; the
-        incoming key cannot read them. So a rotation — any write when a key is
-        already configured — additionally requires `expectedFingerprintSha256`
+        incoming key cannot read them. So a rotation - any write when a key is
+        already configured - additionally requires `expectedFingerprintSha256`
         echoing the key being replaced (a blind or racing overwrite is a `409`)
         and `acknowledgeExistingRecordingsUndecryptable: true` (a `422`
         otherwise). First provisioning, where no key and no recording exists,
@@ -3250,7 +3250,7 @@ paths:
         There is no `DELETE`: un-provisioning the key would fail-close every
         future session, and that is not an operator task.
 
-        Audited before/after, carrying FINGERPRINTS only — never key bytes.
+        Audited before/after, carrying FINGERPRINTS only - never key bytes.
       tags:
         - operator-settings
       requestBody:
@@ -3359,7 +3359,7 @@ paths:
       summary: Terminate an SSH session (admin).
       description: |
         Tears down a live session by pushing a top-tier `Lock`
-        scoped to the session's subject identity, reusing the teardown path — a
+        scoped to the session's subject identity, reusing the teardown path - a
         deny that wins and is actively pushed to every Gateway (fail-closed). Because
         the wire `Lock` selector has no per-session facet, the teardown is
         identity-scoped (it also affects that identity's other live sessions); it is
@@ -3395,7 +3395,7 @@ paths:
       operationId: listSessionLeases
       summary: List concurrency leases (admin).
       description: |
-        Lists concurrency leases (`runtime.session_lease`) — the rows
+        Lists concurrency leases (`runtime.session_lease`) - the rows
         the per-identity cap is counted from. This is the diagnostic half, and
         the sharper of the two gaps it closes: an identity blocked by a lease
         that outlived its session is refused with the same generic policy denial
@@ -3403,7 +3403,7 @@ paths:
         until the lease's safety TTL is reaped.
 
         A lease counts while `countsTowardCap` is true, which is unreleased AND
-        unexpired. So a ghost is not "expired but still counted" — an expired
+        unexpired. So a ghost is not "expired but still counted" - an expired
         lease has already stopped counting, and the reaper only tidies the row.
         It is a lease that STILL counts with no live session behind it: compare
         this collection filtered by `identity` with `activeOnly=true` against
@@ -3420,14 +3420,14 @@ paths:
         - name: identity
           in: query
           required: false
-          description: Filter to one subject identity — the unit the cap is enforced per.
+          description: Filter to one subject identity - the unit the cap is enforced per.
           schema:
             type: string
         - name: activeOnly
           in: query
           required: false
           description: >-
-            When true, return only leases that still count toward the cap —
+            When true, return only leases that still count toward the cap -
             unreleased, and unexpired or without an expiry. This is exactly the
             predicate the cap evaluates.
           schema:
@@ -3452,7 +3452,7 @@ paths:
       operationId: getSessionLease
       summary: Get a concurrency lease (admin).
       description: >-
-        Returns one lease by id — the confirmation step before releasing it.
+        Returns one lease by id - the confirmation step before releasing it.
         Platform-RBAC gated (`audit:read`).
       tags:
         - session-leases
@@ -3477,7 +3477,7 @@ paths:
       summary: Release one concurrency lease (admin, privileged).
       description: |
         Releases ONE stuck lease by id, freeing the slot it occupies. The `reason`
-        is required and audited — this is a correction to enforcement state, and
+        is required and audited - this is a correction to enforcement state, and
         an unexplained one is indistinguishable after the fact from an operator
         quietly raising somebody's cap. Idempotent: releasing an
         already-released lease is a `200` with the lease unchanged.
@@ -3485,7 +3485,7 @@ paths:
         **There is deliberately no bulk form and no release-by-identity
         parameter.** Releasing every lease for an identity trades a bounded
         over-count for an under-count, which lets that identity exceed the cap
-        for as long as the real sessions run — a worse failure than the one being
+        for as long as the real sessions run - a worse failure than the one being
         fixed, and the dangerous shape is therefore not offered at all. Diagnose
         with the collection, then release the specific lease.
 
@@ -3522,7 +3522,7 @@ paths:
       summary: List session recordings (admin).
       description: |
         Lists session recording metadata (`runtime.recording_ref`).
-        NEVER returns recording bytes — replay/export issue short-lived signed URLs.
+        NEVER returns recording bytes - replay/export issue short-lived signed URLs.
         Optional filters narrow by session, node, and identity. Cursor-paginated.
         Platform-RBAC gated (`recording:replay`).
       tags:
@@ -3595,7 +3595,7 @@ paths:
         specifically-privileged, audited role deletes the encrypted recording object
         and marks the metadata pruned. Platform-RBAC gated (`recording:delete`) +
         audited. Refused (`409`) for a **compliance**-mode recording
-        (truly un-deletable, object-lock) or one under **legal hold**. Idempotent —
+        (truly un-deletable, object-lock) or one under **legal hold**. Idempotent -
         `204` whether or not the object was still present.
       tags:
         - recordings
@@ -3620,7 +3620,7 @@ paths:
       summary: Issue a replay signed URL (admin).
       description: |
         Issues a short-lived, single-object SIGNED URL for replaying a
-        recording — bytes NEVER proxy through the CP and the object stays
+        recording - bytes NEVER proxy through the CP and the object stays
         customer-key encrypted (the CP cannot decrypt); the access is itself
         audited. Platform-RBAC gated (`recording:replay`), scopable by
         node-label/user/time.
@@ -3651,7 +3651,7 @@ paths:
       summary: Issue an export signed URL (admin).
       description: |
         Issues a short-lived, single-object SIGNED URL for exporting a
-        recording — bytes NEVER proxy through the CP and the object stays
+        recording - bytes NEVER proxy through the CP and the object stays
         customer-key encrypted (the CP cannot decrypt); itself audited.
         Platform-RBAC gated (`recording:export`), scopable.
       tags:
@@ -3714,13 +3714,13 @@ paths:
       operationId: searchAuditEvents
       summary: Search the correlated audit stream (admin).
       description: |
-        Searches the correlated audit stream (`runtime.audit_event`) — one
+        Searches the correlated audit stream (`runtime.audit_event`) - one
         append-only stream for SSH-session and web/admin events,
         correlated by id, newest-first. Search dimensions: identity
         (`actor`), subject, action, outcome, node (`nodeId`) and node label
         (`nodeLabel`), session, source IP, capability, access model, and a time
         range; `correlationId` reconstructs one full path (approve → connect → run →
-        replay). Cursor-paginated. Read-only — a search never mutates the
+        replay). Cursor-paginated. Read-only - a search never mutates the
         append-only stream and the hash chain stays verifiable. Platform-RBAC gated
         (`audit:read`); results are additionally filtered to the caller's RBAC scope
         (a node-label/user/time-scoped `audit:read` grant returns only in-scope
@@ -3814,7 +3814,7 @@ paths:
         - name: correlationId
           in: query
           required: false
-          description: Filter to one correlation id — the full-path join key.
+          description: Filter to one correlation id - the full-path join key.
           schema:
             type: string
             format: uuid
@@ -4331,13 +4331,13 @@ components:
             - client_secret
         publicKeyPem:
           type: string
-          description: For private_key_jwt — the client's public key (PEM). Public material only.
+          description: For private_key_jwt - the client's public key (PEM). Public material only.
         jwksUri:
           type: string
-          description: For private_key_jwt — a JWKS URI reference (alternative to publicKeyPem).
+          description: For private_key_jwt - a JWKS URI reference (alternative to publicKeyPem).
         certificateFingerprint:
           type: string
-          description: For mtls — the client certificate SHA-256 fingerprint.
+          description: For mtls - the client certificate SHA-256 fingerprint.
         ttlSeconds:
           type: integer
           format: int64
@@ -4365,7 +4365,7 @@ components:
           type: string
         clientSecret:
           type: string
-          description: For client_secret — the raw secret, returned ONCE; only its hash is stored.
+          description: For client_secret - the raw secret, returned ONCE; only its hash is stored.
         status:
           type: string
         issuedAt:
@@ -4465,7 +4465,7 @@ components:
       title: Lock Target
       description: |
         What the lock matches (LockMatching facets; OR-matched). At least one
-        facet must be non-empty, OR `all` must be true — a global lock is never
+        facet must be non-empty, OR `all` must be true - a global lock is never
         implicit (ingest rejects an empty target).
       properties:
         identities:
@@ -4753,7 +4753,7 @@ components:
       type: object
       title: Internal mTLS CA Trust Anchor
       description: >-
-        The active internal mTLS CA certificate — public material only. No
+        The active internal mTLS CA certificate - public material only. No
         private key, key reference, or wrapped material appears here or can be
         derived from it.
       required:
@@ -4790,7 +4790,7 @@ components:
       title: Gateway Identity
       description: >-
         An enrolled Gateway's identity METADATA. NEVER carries a certificate, a
-        key reference, or key material — the mTLS identity reference is outside
+        key reference, or key material - the mTLS identity reference is outside
         this projection and cannot be derived from it.
       required:
         - id
@@ -4813,8 +4813,8 @@ components:
           type: string
           description: >-
             Lowercase hex SHA-256 over the current mTLS identity certificate's
-            DER. A mismatch against what the Gateway actually holds — the usual
-            after-restore symptom — is visible here.
+            DER. A mismatch against what the Gateway actually holds - the usual
+            after-restore symptom - is visible here.
         prevFingerprintSha256:
           type: string
           description: >-
@@ -4890,7 +4890,7 @@ components:
       title: Register Node Request
       description: |
         Enrol a node. At least one of `hostCertificate` / `pinnedHostKey` is
-        required for BOTH connector kinds (host-identity anchor — no TOFU):
+        required for BOTH connector kinds (host-identity anchor - no TOFU):
         the Gateway verifies the node's host identity on the inner leg however it
         reached the node, so an anchorless node aborts every session. `address`
         (host:port) is required for `agentless` and rejected for `agent`.
@@ -4948,7 +4948,7 @@ components:
             - kill
             - drain
           default: kill
-          description: How existing sessions are handled — `kill` (torn down at once) or `drain` (finish; no new channels).
+          description: How existing sessions are handled - `kill` (torn down at once) or `drain` (finish; no new channels).
         ttlSeconds:
           type: integer
           format: int64
@@ -4990,7 +4990,7 @@ components:
             - unreachable
           description: >-
             Computed per request from `runtime.presence` and the node's host
-            anchors — not stored, and never set by a client. `unhealthy` wins over
+            anchors - not stored, and never set by a client. `unhealthy` wins over
             everything below it and means the node has NO enrollment-anchored host
             identity: neither a host certificate nor a pinned host key, so it is
             enrolled but unusable, and the Gateway aborts every session to it rather
@@ -4999,7 +4999,7 @@ components:
             `healthy` while a Gateway holds its control channel (a presence heartbeat
             inside the staleness window), `unreachable` once a Gateway held it and
             the heartbeat has gone stale, and `unknown` when no Gateway has ever
-            claimed it — the Agent has not joined yet. For an `agentless` node it is
+            claimed it - the Agent has not joined yet. For an `agentless` node it is
             ALWAYS `unknown`, which reports nothing wrong: the Control Plane holds no
             continuous liveness signal for a node it dials on demand, and runs no
             probe of its own.
@@ -5013,7 +5013,7 @@ components:
           type: string
           description: >-
             The name of the Gateway currently holding the node's agent control
-            channel, computed per request from a FRESH `runtime.presence` heartbeat —
+            channel, computed per request from a FRESH `runtime.presence` heartbeat -
             not stored. A heartbeat outside the staleness window means nobody owns the
             node, and the field is then absent; it is absent for an `agentless` node
             too, which has no owner because any Gateway dials it directly. Read-only
@@ -5066,7 +5066,7 @@ components:
       title: Node Host Anchors
       description: >-
         A node's current host-identity anchors. `anchors` is empty for a node that
-        has none — the state in which the Gateway aborts every session to it.
+        has none - the state in which the Gateway aborts every session to it.
       required:
         - nodeId
         - anchors
@@ -5082,7 +5082,7 @@ components:
     NodeHostAnchor:
       type: object
       title: Node Host Anchor
-      description: One recorded host-identity anchor. Public material only — a certificate or a public key, never a private half.
+      description: One recorded host-identity anchor. Public material only - a certificate or a public key, never a private half.
       required:
         - source
         - keyType
@@ -5102,14 +5102,14 @@ components:
         fingerprint:
           type: string
           description: >-
-            The OpenSSH `SHA256:` fingerprint of the anchor's public key — what an
+            The OpenSSH `SHA256:` fingerprint of the anchor's public key - what an
             operator compares against the key the node reports. Absent for a
             `host_ca` anchor recorded from a certificate line alone, whose trust
             comes from the CA signature rather than from a fingerprint comparison.
         recordedAt:
           type: string
           format: date-time
-          description: When the anchor was recorded — node registration, or the last replace.
+          description: When the anchor was recorded - node registration, or the last replace.
       additionalProperties: false
     JitRequestSubmission:
       type: object
@@ -5515,8 +5515,8 @@ components:
       description: |
         A granular platform-RBAC permission from the closed vocabulary.
 
-        `metrics:read` gates exactly one thing — reading the Control Plane's metrics
-        endpoint — and is a member of its own rather than a reuse of `audit:read` on
+        `metrics:read` gates exactly one thing - reading the Control Plane's metrics
+        endpoint - and is a member of its own rather than a reuse of `audit:read` on
         purpose: the meters carry fleet-wide operational counts (live sessions,
         authorization error rates, CA-signer activity, session-limit denials), and
         granting a scraper `audit:read` to reach them would hand it the entire audit
@@ -5574,13 +5574,13 @@ components:
       description: |
         Where a CA's private key lives. Three of these can actually sign:
 
-        - `local` — the key is in the Control Plane's database, encrypted under an
+        - `local` - the key is in the Control Plane's database, encrypted under an
           operator KEK. Always available.
-        - `azure_keyvault` — the key is in Azure Key Vault and never leaves it. The
+        - `azure_keyvault` - the key is in Azure Key Vault and never leaves it. The
           Control Plane signs by calling the vault, and the deployment must have
           `sessionlayer.ca.azure.*` configured; a CA naming this backend on a
           Control Plane that does not fails closed rather than signing locally.
-        - `aws_kms` — the key is in AWS KMS and never leaves it. The Control Plane
+        - `aws_kms` - the key is in AWS KMS and never leaves it. The Control Plane
           signs by calling `Sign` on a pinned key ARN, and the deployment must have
           `sessionlayer.ca.aws.*` configured; the same fail-closed rule applies.
 
@@ -5589,7 +5589,7 @@ components:
         it, so a CA naming it would accept the write and then fail every signature.
         Creating or updating a CA onto it is rejected (`422`).
 
-        The set is deliberately never narrowed — a row an upgraded deployment
+        The set is deliberately never narrowed - a row an upgraded deployment
         already holds must stay readable.
       enum:
         - local
@@ -5602,7 +5602,7 @@ components:
       description: |
         The algorithms a CA row may carry. This set is deliberately EXACTLY the
         set the `ca_config.algorithm` CHECK admits, so no stored row can hold a
-        value this enum cannot map — the read paths deserialize the stored
+        value this enum cannot map - the read paths deserialize the stored
         algorithm through this enum, and a value outside it would fail the read
         rather than the write.
 
@@ -5772,7 +5772,7 @@ components:
           description: >-
             The granted access's lifetime in seconds. REQUIRED when `effect` is
             `allow`, where it bounds the grant; omitting it there is a `422` naming
-            this field, and there is no default — an unbounded grant is never
+            this field, and there is no default - an unbounded grant is never
             inferred from silence. IGNORED when `effect` is `deny`, which grants
             nothing and so has no lifetime to bound; a deny is in force until the
             rule is changed.
@@ -5809,7 +5809,7 @@ components:
           description: >-
             The granted access's lifetime in seconds. REQUIRED when `effect` is
             `allow`, where it bounds the grant; omitting it there is a `422` naming
-            this field, and there is no default — an unbounded grant is never
+            this field, and there is no default - an unbounded grant is never
             inferred from silence. IGNORED when `effect` is `deny`, which grants
             nothing and so has no lifetime to bound; a deny is in force until the
             rule is changed.
@@ -5822,7 +5822,7 @@ components:
         version:
           type: integer
           format: int64
-          description: The current resource version; required and must match (optimistic concurrency — no silent lost update).
+          description: The current resource version; required and must match (optimistic concurrency - no silent lost update).
       additionalProperties: false
     RulePage:
       type: object
@@ -6023,7 +6023,7 @@ components:
           $ref: '#/components/schemas/CaBackend'
         keyReference:
           type: string
-          description: A backend key handle/reference only — NEVER private key material.
+          description: A backend key handle/reference only - NEVER private key material.
         algorithm:
           $ref: '#/components/schemas/CaAlgorithm'
         rotationState:
@@ -6059,7 +6059,7 @@ components:
         keyReference:
           type: string
           minLength: 1
-          description: A backend key handle/reference only — private material is rejected (422).
+          description: A backend key handle/reference only - private material is rejected (422).
         algorithm:
           $ref: '#/components/schemas/CaAlgorithm'
       additionalProperties: false
@@ -6090,8 +6090,8 @@ components:
         Optional overrides for the incoming key; omitted fields inherit the active CA.
 
         Overriding `backend` is how a CA is **moved onto a different key service**.
-        A CA's private key cannot be migrated — a key in Azure Key Vault is *in*
-        Key Vault — so adoption is necessarily a rotation onto a new key, and the
+        A CA's private key cannot be migrated - a key in Azure Key Vault is *in*
+        Key Vault - so adoption is necessarily a rotation onto a new key, and the
         overlap window is what gives the fleet time to trust it.
       properties:
         algorithm:
@@ -6101,7 +6101,7 @@ components:
             - $ref: '#/components/schemas/CaBackend'
           description: |
             The backend the incoming key lives in; defaults to the active CA's.
-            Naming a backend this build has no signer for is a `422` — the check
+            Naming a backend this build has no signer for is a `422` - the check
             happens before anything is written, so a rotation cannot leave the CA
             kind pointing at a key nothing can sign with.
 
@@ -6145,7 +6145,7 @@ components:
       type: object
       title: CA Public Key
       description: >-
-        The active CA's PUBLIC key for one SSH kind — the material a node or a
+        The active CA's PUBLIC key for one SSH kind - the material a node or a
         client pins to verify certificates this CA issues. No private key, key
         reference, or wrapped material appears here or can be derived from it.
       required:
@@ -6200,7 +6200,7 @@ components:
           $ref: '#/components/schemas/ServiceAccountAuthMethod'
         keyReference:
           type: string
-          description: A public key / JWKS reference only — NEVER a secret.
+          description: A public key / JWKS reference only - NEVER a secret.
         tokenTtlSeconds:
           type: integer
           format: int32
@@ -6231,7 +6231,7 @@ components:
           $ref: '#/components/schemas/ServiceAccountAuthMethod'
         keyReference:
           type: string
-          description: A public key / JWKS reference only — private material is rejected (422).
+          description: A public key / JWKS reference only - private material is rejected (422).
         tokenTtlSeconds:
           type: integer
           format: int32
@@ -6716,7 +6716,7 @@ components:
         version:
           type: integer
           format: int64
-          description: The current resource version; required and must match (optimistic concurrency — no silent lost update).
+          description: The current resource version; required and must match (optimistic concurrency - no silent lost update).
       additionalProperties: false
     SessionLimitPolicyPage:
       type: object
@@ -6742,7 +6742,7 @@ components:
         bytes are not part of it and cannot be derived from it.
 
         `defaultCaBackend`, `origin`, `version` and the timestamps are read-only
-        — `defaultCaBackend` is consumed only when cold start provisions a CA
+        - `defaultCaBackend` is consumed only when cold start provisions a CA
         kind that has no row yet, so it governs nothing once the CAs exist; a
         live CA's backend is managed under `/v1/cas`.
       required:
@@ -6819,7 +6819,7 @@ components:
           $ref: '#/components/schemas/RecordingKeySealAlgorithm'
         recordingKeyRef:
           type: string
-          description: The operator's reference to the customer key — NEVER key material.
+          description: The operator's reference to the customer key - NEVER key material.
         origin:
           $ref: '#/components/schemas/Origin'
         version:
@@ -6839,7 +6839,7 @@ components:
         Replaces the writable settings. The four always-present knobs are
         required, so a partial body can never quietly reset one to its
         cold-start default. The three session-limit defaults are nullable in the
-        model, and omitting one CLEARS the cluster default for that knob — read,
+        model, and omitting one CLEARS the cluster default for that knob - read,
         modify, and send the whole resource back.
 
         Both retention fields and `defaultWormMode` ratchet: they accept an
@@ -6892,7 +6892,7 @@ components:
         version:
           type: integer
           format: int64
-          description: The current resource version; required and must match (optimistic concurrency — no silent lost update).
+          description: The current resource version; required and must match (optimistic concurrency - no silent lost update).
       additionalProperties: false
     RecordingCustomerKey:
       type: object
@@ -6915,7 +6915,7 @@ components:
           type: string
           description: >-
             The customer's public key as base64-encoded DER SubjectPublicKeyInfo
-            — the exact text that was submitted, so an operator can compare it
+            - the exact text that was submitted, so an operator can compare it
             against their own record of what they provisioned.
         sealAlgorithm:
           $ref: '#/components/schemas/RecordingKeySealAlgorithm'
@@ -6923,7 +6923,7 @@ components:
           type: string
           description: >-
             The operator's reference to the key (persisted onto each recording
-            so replay can find the customer's unwrap path) — NEVER key material.
+            so replay can find the customer's unwrap path) - NEVER key material.
         fingerprintSha256:
           type: string
           description: >-
@@ -6963,8 +6963,8 @@ components:
           maxLength: 12288
           description: >-
             The customer's PUBLIC key as base64-encoded DER SubjectPublicKeyInfo,
-            at most 8 KiB decoded. Private key material — PKCS#8, SEC1, or PEM
-            text of any kind — is rejected (`422`); only the public half is ever
+            at most 8 KiB decoded. Private key material - PKCS#8, SEC1, or PEM
+            text of any kind - is rejected (`422`); only the public half is ever
             stored.
         sealAlgorithm:
           $ref: '#/components/schemas/RecordingKeySealAlgorithm'
@@ -6973,7 +6973,7 @@ components:
           maxLength: 255
           description: >-
             An optional operator reference to where the private half is held.
-            A reference only — a value carrying key material is a `422`.
+            A reference only - a value carrying key material is a `422`.
         expectedFingerprintSha256:
           type: string
           pattern: '^[0-9a-f]{64}$'
@@ -6990,7 +6990,7 @@ components:
         version:
           type: integer
           format: int64
-          description: The current operator-settings version; required and must match (optimistic concurrency — a stale version is a `409`).
+          description: The current operator-settings version; required and must match (optimistic concurrency - a stale version is a `409`).
       additionalProperties: false
     SessionResource:
       type: object
@@ -7116,21 +7116,21 @@ components:
           description: >-
             The lease safety TTL. Once it passes, the lease stops counting
             immediately and the reaper later stamps `releasedAt` to tidy the row.
-            ABSENT means no TTL — the lease counts until something releases it,
+            ABSENT means no TTL - the lease counts until something releases it,
             which is the only unbounded case.
         releasedAt:
           type: string
           format: date-time
           description: >-
             When the lease was released, by a session ending, by an operator, or
-            by the reaper. Absent while unreleased — which is not the same as
+            by the reaper. Absent while unreleased - which is not the same as
             counting, since an expired lease is unreleased and uncounted.
         countsTowardCap:
           type: boolean
           description: >-
             Whether this lease is counted right now by the cap query, which
             evaluates unreleased AND (no expiry OR expiry in the future). An
-            expired-but-unreleased lease does NOT count — it has already stopped
+            expired-but-unreleased lease does NOT count - it has already stopped
             occupying the slot, and `releasedAt` merely catches up later.
       additionalProperties: false
     ReleaseSessionLeaseRequest:
@@ -7199,7 +7199,7 @@ components:
           description: The tamper-evidence hash-chain head (hex).
         encryptionKeyRef:
           type: string
-          description: A reference to the customer-held encryption key — NEVER key material.
+          description: A reference to the customer-held encryption key - NEVER key material.
         legalHold:
           type: boolean
         retentionUntil:
@@ -7277,7 +7277,7 @@ components:
         global ordinal: a reader who sees `seq` 1000 then 1007 has learned that
         six events exist that they are not entitled to see, and the linkage would
         not resolve for them anyway. Their absence is therefore normal, not an
-        error — treat all three as optional.
+        error - treat all three as optional.
       required:
         - id
         - occurredAt

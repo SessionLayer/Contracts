@@ -1,12 +1,12 @@
-# SessionLayer — Canonical Cross-Repo Contracts
+# SessionLayer - Canonical Cross-Repo Contracts
 
 This directory is the **single source of truth** for every contract that crosses
 a component boundary in SessionLayer. It is **contract-first**: the contracts
 here are authored and frozen *before* any consumer generates code, and every
-repo derives its types from these files — no repo hand-writes a divergent copy.
+repo derives its types from these files - no repo hand-writes a divergent copy.
 
 It lives in the `SessionLayer/Contracts` repo, independently versioned and
-tagged, and is vendored by every consumer — including `ControlPlane`.
+tagged, and is vendored by every consumer - including `ControlPlane`.
 
 ## Layout
 
@@ -35,7 +35,7 @@ contracts/
 
 | Repo | Consumes | How it generates |
 |---|---|---|
-| **ControlPlane** (Java) | `proto/` (server), `openapi/` (server interfaces) | `protobuf-maven-plugin` + `protoc-gen-grpc-java`; `openapi-generator-maven-plugin` (spring/webflux) — build fails on drift |
+| **ControlPlane** (Java) | `proto/` (server), `openapi/` (server interfaces) | `protobuf-maven-plugin` + `protoc-gen-grpc-java`; `openapi-generator-maven-plugin` (spring/webflux) - build fails on drift |
 | **Gateway** (Rust) | `proto/` (client + the agent/gateway payloads) | `tonic-prost-build` in `build.rs` against a vendored copy of `proto/` |
 | **Agent** (Rust) | `proto/` (`common`/`agent` types, the wire payloads), `wire/` (spec) | `tonic-prost-build` in `build.rs` |
 | **Dashboard** (TS) | `openapi/` | `openapi-typescript` + `openapi-fetch`; CI fails if the checked-in client drifts |

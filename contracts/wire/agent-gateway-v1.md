@@ -1,4 +1,4 @@
-# Agent ↔ Gateway Wire Protocol — v1 (specification)
+# Agent ↔ Gateway Wire Protocol - v1 (specification)
 
 **Status:** **FROZEN at protocol 1.0.** This document is the normative contract
 both implementations are built against: the framing, the connection preface,
@@ -19,7 +19,7 @@ the message catalogue, and the dial-back state machine.
 ## 1. Transport and connection roles
 
 The **Agent dials out**; the Gateway never dials a node. A node needs **zero
-inbound reachability** — this is the whole point of the model.
+inbound reachability** - this is the whole point of the model.
 
 Carriage is **WebSocket over TLS 1.3 with mutual TLS** (`wss://`). There are
 exactly **two connection roles**, distinguished by request path on one
@@ -30,7 +30,7 @@ listener:
 | **Control** | `/agent/v1/control` | Long-lived, one per Agent→Gateway pair | Preface, liveness, dial-back requests |
 | **Dial-back** | `/agent/v1/dialback` | One per session, torn down with it | One session's opaque SSH bytes |
 
-**Both roles present the same mTLS client certificate** — the Agent's renewable
+**Both roles present the same mTLS client certificate** - the Agent's renewable
 X.509 identity. Neither role is reachable without it.
 
 - **Agent → Gateway authentication.** The Gateway's TLS server **requires** a
@@ -39,13 +39,13 @@ X.509 identity. Neither role is reachable without it.
   the node's enrollment **name**. Both are stamped by the CP; neither is
   self-asserted. A certificate that does not resolve to exactly one agent is
   refused. The Gateway additionally refuses a peer covered by a **Lock** (the
-  actively-pushed deny-list) — at registration **and** again at every
+  actively-pushed deny-list) - at registration **and** again at every
   dial-back. Deny wins.
 - **Gateway → Agent authentication.** The Agent verifies the Gateway's TLS server
   certificate against the **same internal mTLS CA** it already holds (its
   `ca_chain`), with the Gateway's enrolled **name** as the expected server name.
   This leaf is a **serverAuth** certificate the Gateway obtains from
-  `GatewayIdentity.IssueGatewayServerCertificate` — its clientAuth identity leaf
+  `GatewayIdentity.IssueGatewayServerCertificate` - its clientAuth identity leaf
   is deliberately not usable here (one EKU per leaf). **There is no TOFU on this
   path either** (the platform trusts nothing on first use, anywhere).
 - **No session plaintext, ever.** `STREAM_DATA` payloads are SSH-layer
@@ -70,14 +70,14 @@ One frame per WebSocket **binary** message (a text message is a protocol error):
 +--------+--------+------------------+------------------------------+
 ```
 
-- `VER` — the protocol major **negotiated** in the connection preface. A frame
+- `VER` - the protocol major **negotiated** in the connection preface. A frame
   whose `VER` does not match is a protocol error → `ERROR` + close.
-- `TYPE` — a message type from the catalogue below.
-- `LENGTH` — big-endian `u32`. Both peers MUST enforce `max_frame_bytes`
+- `TYPE` - a message type from the catalogue below.
+- `LENGTH` - big-endian `u32`. Both peers MUST enforce `max_frame_bytes`
   (negotiated in `HELLO_ACK`) and reject an oversized frame **without
   buffering it** (DoS guard). `LENGTH` MUST equal the remaining message bytes;
   a short or trailing-garbage frame is a protocol error.
-- `PAYLOAD` — for every type except `0x31`, the protobuf message named in the
+- `PAYLOAD` - for every type except `0x31`, the protobuf message named in the
   catalogue. For `0x31 STREAM_DATA` the payload is **raw opaque bytes** (no
   protobuf): the session hot path pays no encoding cost, and the Agent has no
   decoder for what it carries.
@@ -93,7 +93,7 @@ Immediately after the TLS handshake, before any other frame, on **both** roles:
    `VERSIONING.md` §3), and the negotiated `heartbeat_interval_secs` +
    `max_frame_bytes`.
 3. If no common version exists, the Gateway sends `VERSION_REJECT` (`0x03`) with
-   its own range and closes — **fail closed**. The Agent MUST NOT
+   its own range and closes - **fail closed**. The Agent MUST NOT
    retry with a guessed version.
 
 **Bounds on the negotiated parameters.** Both values in `HELLO_ACK` are
@@ -108,7 +108,7 @@ An Agent MUST refuse a `HELLO_ACK` proposing a value outside these ranges (a
 Gateway is not trusted to be correctly configured), and a Gateway MUST reject
 such a value **at startup** rather than at connect. The two checks are the same
 range seen from both ends: a Gateway that accepted an out-of-range value at
-startup would come up healthy and then be refused by every Agent in the fleet —
+startup would come up healthy and then be refused by every Agent in the fleet -
 a misconfiguration that fails to a silent fleet-wide outage instead of failing
 loudly at boot.
 
@@ -140,16 +140,16 @@ not legal is a protocol error.
 | `0x31` | `STREAM_DATA` | either | dial-back | **raw bytes** |
 | `0x32` | `STREAM_CLOSE` | either | dial-back | `StreamClose` |
 | `0x7E` | `ERROR` | either | both | `WireError` |
-| `0x40` | `NODE_STATUS` | Agent → GW | control | *reserved* — label/heartbeat reporting |
+| `0x40` | `NODE_STATUS` | Agent → GW | control | *reserved* - label/heartbeat reporting |
 | `0x50` | `CREDENTIAL_ROTATE` | either | control | *reserved* |
-| `0x7F` | `GOAWAY` | either | both | *reserved* — graceful drain |
+| `0x7F` | `GOAWAY` | either | both | *reserved* - graceful drain |
 
 `0x24`–`0x26` are allocated to the **Gateway↔Gateway relay profile** (`RELAY_OPEN`
 /`RELAY_ACCEPT`/`RELAY_REJECT`, `contracts/wire/gateway-relay-v1.md`); they never
 appear on an Agent↔Gateway connection. Reserved types MUST be rejected as
 protocol errors until they are defined.
 
-`0x30 STREAM_OPEN` travels **Agent→Gateway only, never the reverse** — the Agent
+`0x30 STREAM_OPEN` travels **Agent→Gateway only, never the reverse** - the Agent
 is the only party that knows when the loopback connection came up.
 
 ## 5. The dial-back state machine
@@ -177,7 +177,7 @@ is the only party that knows when the loopback connection came up.
      |                                                        |  connect 127.0.0.1:22 (local config)
      |<- 0x30 STREAM_OPEN ------------------------------------|  splice live
      |                                                        |
-     |  [ByteStream handed to the inner leg — host verify,   |
+     |  [ByteStream handed to the inner leg - host verify,   |
      |   inner cert, bridge, recorder: byte-for-byte the same |
      |   as agentless. The Agent is not a party to any of it.] |
      |<---------------- 0x31 STREAM_DATA (both) ------------->|
@@ -186,7 +186,7 @@ is the only party that knows when the loopback connection came up.
 
 **`DIAL_BACK_RESULT` is not sequenced.** The diagram above draws it early for
 readability; that is **not** normative ordering. The Agent sends exactly **one**
-result per `request_id`, **whenever the outcome becomes known** — which may be
+result per `request_id`, **whenever the outcome becomes known** - which may be
 before it dials (`REFUSED`), or after `DIAL_BACK_ACCEPT` (`LOCAL_DIAL_FAILED`,
 which cannot be known any earlier). It is a **fast-fail hint, never a readiness
 signal**: readiness is proven only by `STREAM_OPEN` arriving on the dial-back
@@ -198,7 +198,7 @@ readiness. A result that arrives after the token is already consumed is a no-op.
 within `dial_back_timeout` (Gateway config), the Gateway abandons the pending
 entry, drops the token, and the connector fails → the user sees the generic
 post-authorization outcome **"target node is offline / unreachable"**
-— exactly what an agentless dial to a dead node yields. A node with no registered
+- exactly what an agentless dial to a dead node yields. A node with no registered
 control channel fails the same way, immediately. A failure the Agent reports
 early (or a `STREAM_CLOSE` where `STREAM_OPEN` was expected) MUST fail the
 connector **immediately**, without waiting out the timeout.
@@ -206,7 +206,7 @@ connector **immediately**, without waiting out the timeout.
 **The splice target is not on the wire.** The Agent connects to its own
 locally-configured loopback address (`127.0.0.1:22` by default), which it
 validates at startup to be a loopback address and refuses to start otherwise.
-`DIAL_BACK_REQUEST` carries no target, so **no Gateway — however compromised —
+`DIAL_BACK_REQUEST` carries no target, so **no Gateway - however compromised -
 can redirect an Agent's splice** or use it as a network pivot. This is the
 confused-deputy defence and it is structural, not a check.
 
@@ -220,7 +220,7 @@ SLDB1.<base64url(payload)>.<base64url(signature)>          (no padding)
 
 - `payload` = `DialBackTokenPayload` (wire.proto), serialized.
 - `signature` = ECDSA **P-256 / SHA-256** over
-  `"sessionlayer-dialback-v1:" || payload_bytes` — domain-separated, so a
+  `"sessionlayer-dialback-v1:" || payload_bytes` - domain-separated, so a
   signature can never be lifted from another context (mirrors the
   decision-context signer's domain separation).
 - **Verify-then-decode.** The verifier base64-decodes, checks the signature over
@@ -234,25 +234,25 @@ Gateway is refused before its signature is considered. Cross-Gateway verificatio
 is never needed: a dial-back always terminates at the Gateway that issued the
 token (whose address it carries).
 
-**Accepted only if ALL hold** — any failure ⇒ `ERROR(UNAUTHORIZED)` + close, and
+**Accepted only if ALL hold** - any failure ⇒ `ERROR(UNAUTHORIZED)` + close, and
 the specific reason goes to the operator log only:
 
 1. Envelope well-formed, `SLDB1` prefix, signature valid under the current
    signing key, `signer_key_fingerprint` == this process's key.
 2. `gateway_id` == this Gateway.
 3. `issued_at - skew ≤ now < not_after`.
-4. `jti` is **present in the pending map** — and removing it **is** consumption.
+4. `jti` is **present in the pending map** - and removing it **is** consumption.
    A replay finds nothing and is refused. A token whose session already timed out
    finds nothing and is refused.
 5. The dial-back connection's **mTLS identity** resolves to `agent_id`, **and**
    that agent is the owner of `node_name`. A token captured by a different Agent
-   — even a valid, unlocked one — is worthless to it.
+   - even a valid, unlocked one - is worthless to it.
 6. The pending entry's `{node_name, session_id, principal}` equal the payload's.
 7. The agent is **not covered by a Lock** (re-checked here, not just at
    registration).
 
 The token is **never logged, never persisted, and never echoed**. Only the `jti`
-and its bindings are held (in memory, until consumed or expired) — so there is no
+and its bindings are held (in memory, until consumed or expired) - so there is no
 store of token material to steal.
 
 ## 7. Liveness, reconnect, and node availability
@@ -261,7 +261,7 @@ store of token material to steal.
   `PONG` echoing the nonce. Two missed intervals ⇒ the peer is dead: the Gateway
   deregisters the agent (its node becomes unreachable) and the Agent reconnects.
 - The Agent reconnects with **exponential backoff + jitter**, indefinitely. A
-  reconnect re-runs the full TLS + mTLS + preface + registration path — there is
+  reconnect re-runs the full TLS + mTLS + preface + registration path - there is
   no resumption and no cached authorization.
 - **Re-registration replaces.** If an Agent registers for a node that already has
   a live control channel, the newer connection wins and the older is closed. A
@@ -277,15 +277,15 @@ store of token material to steal.
 
 ## 8. Security invariants (normative)
 
-- **The seam is invariant.** Everything above `NodeConnector` — inner
-  cert, **no-TOFU host verification**, the byte bridge, the recorder — is
+- **The seam is invariant.** Everything above `NodeConnector` - inner
+  cert, **no-TOFU host verification**, the byte bridge, the recorder - is
   byte-for-byte identical to the agentless path. The agent model changes only
   **how the Gateway obtains the `ByteStream`**. A compromised Agent cannot bypass
   host verification or the inner certificate: it does not hold, see, or influence
   either.
 - **Host verification holds over the loopback splice.** The Agent runs
   **non-root** and therefore cannot read the node's host key, so
-  spoofing the node's host identity requires **node-root compromise** — the agent
+  spoofing the node's host identity requires **node-root compromise** - the agent
   model raises that bar rather than lowering it. An Agent that spliced to an
   impostor would be caught by the Gateway's host-identity check, which aborts.
 - **The Agent never sees plaintext, and never holds a session credential.** It
@@ -306,4 +306,4 @@ store of token material to steal.
   Gateway's inner certificate carries `key_id = session_id + identity`, and a
   node running `LogLevel VERBOSE` logs that key-id on every accepted
   certificate. The two trails cross-correlate on `session_id` with **no trust in
-  the Agent** — which is what makes it independent.
+  the Agent** - which is what makes it independent.
