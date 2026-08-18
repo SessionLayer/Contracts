@@ -25,9 +25,9 @@ option java_outer_classname = "AuthProto";
 //
 // NON-DISCLOSURE. Resolution failure is generic: the Resolve* RPCs return
 // `resolved = false` with no identity for ANY reason (unknown / expired /
-// wrong-source / rate-limited / malformed) — the caller is never told which, so
+// wrong-source / rate-limited / malformed) - the caller is never told which, so
 // the outer-leg auth surface reveals no existence. Reasons go only to the
-// decision log. Source IP is a DENY-ONLY reducer everywhere — it can suppress a
+// decision log. Source IP is a DENY-ONLY reducer everywhere - it can suppress a
 // resolution, never grant one.
 service OuterLegAuth {
   // ResolveUserCert validates a presented OpenSSH user certificate against the
@@ -67,7 +67,7 @@ service OuterLegAuth {
   // key to its break-glass identity + scoped principals, INDEPENDENT of the primary
   // OIDC IdP. The key is public and russh has already verified the FIDO POSSESSION
   // signature before the Gateway calls this (proving the hardware authenticator, whose
-  // private key never leaves it, is present) — the CP only maps the key to its
+  // private key never leaves it, is present) - the CP only maps the key to its
   // registered break-glass credential. NOTE: touch (user-presence) is enforced by the
   // AUTHENTICATOR for a standard touch-required sk key; it is NOT asserted server-side
   // (this russh does not expose the sk flags), so break-glass keys MUST be provisioned
@@ -79,12 +79,12 @@ service OuterLegAuth {
   rpc ResolveBreakglassKey(ResolveBreakglassKeyRequest) returns (ResolveBreakglassKeyResponse);
 
   // ResolveBreakglassCode validates a pre-issued single-use break-glass OFFLINE CODE
-  // — the IdP-independent FALLBACK when no FIDO2 authenticator is available. The code
+  // - the IdP-independent FALLBACK when no FIDO2 authenticator is available. The code
   // is looked up by its SHA-256 hash (the raw code is never stored nor compared in the
   // clear) and consumed by an atomic single-use UPDATE; it is source-bound and the
   // identity comes from the code record, never client input. A ≥128-bit code makes the
   // hash-existence timing side-channel useless. The `code` field is a SECRET (entered
-  // over keyboard-interactive with echo off) — NEVER log it. On success it mints a
+  // over keyboard-interactive with echo off) - NEVER log it. On success it mints a
   // single-use `breakglass_token`; a replayed, expired, wrong-source, or unknown code
   // resolves to `resolved = false` with no token (generic).
   rpc ResolveBreakglassCode(ResolveBreakglassCodeRequest) returns (ResolveBreakglassCodeResponse);
@@ -107,7 +107,7 @@ message ResolvedIdentity {
 message ResolveUserCertRequest {
   // The OpenSSH user certificate the client presented on the outer leg, as the
   // raw OpenSSH wire blob (the base64 body of an `...-cert-v01@openssh.com`
-  // authorized-keys entry). Not a secret — a certificate is public — but the CP
+  // authorized-keys entry). Not a secret - a certificate is public - but the CP
   // validates it fully before trusting anything in it.
   bytes certificate_blob = 1;
 
@@ -187,7 +187,7 @@ enum DeviceFlowStatus {
 // BreakglassResolution is the break-glass authentication result: the resolved
 // break-glass identity + scoped principals, plus a single-use token the Gateway
 // presents to Authorize to open exactly one break-glass session.
-// AUTHENTICATION ONLY — the alert, the breakglass_activation record, and the
+// AUTHENTICATION ONLY - the alert, the breakglass_activation record, and the
 // forced-strict/Lock-checked authorization all happen at Authorize (on actual use),
 // symmetric with how the other Resolve* RPCs authenticate without granting access.
 message BreakglassResolution {
@@ -198,7 +198,7 @@ message BreakglassResolution {
   // AuthorizeRequest.breakglass_token and consumed atomically at Authorize, which then
   // creates the breakglass_activation, fires the high-priority alert, forces
   // access_model = BREAKGLASS + strict recording, and evaluates the break-glass allow
-  // SUBJECT TO the top-tier Lock (a Lock still denies — deny wins). Empty when
+  // SUBJECT TO the top-tier Lock (a Lock still denies - deny wins). Empty when
   // resolved = false.
   string breakglass_token = 2;
 }
@@ -206,7 +206,7 @@ message BreakglassResolution {
 message ResolveBreakglassKeyRequest {
   // The OpenSSH `sk-ecdsa-sha2-nistp256@openssh.com` PUBLIC key the client offered,
   // as the raw OpenSSH wire blob (the base64 body of the authorized-keys entry).
-  // PUBLIC material — the CP matches it to a registered break-glass credential.
+  // PUBLIC material - the CP matches it to a registered break-glass credential.
   bytes sk_public_key_blob = 1;
 
   string source_ip = 2;

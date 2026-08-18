@@ -52,7 +52,7 @@ message SignContext {
 // is presented before the inner hop authenticates, so there is no session token
 // yet). It is authorized purely by the caller's Gateway mTLS identity, which the
 // interceptor resolves to an ACTIVE, UNLOCKED gateway_identity (a locked/revoked
-// Gateway is refused — the lock is the revocation). The host CA is the
+// Gateway is refused - the lock is the revocation). The host CA is the
 // operator-consented MITM trust anchor; the CP TTL-bounds and audits issuance.
 //
 // KEY CUSTODY. The Gateway generates the outer host keypair locally and
@@ -67,7 +67,7 @@ message SignGatewayHostCertificateRequest {
   // private key never leaves the Gateway.
   bytes host_public_key = 1;
 
-  // The host principal(s) to certify — the exact hostname(s) the client dials on
+  // The host principal(s) to certify - the exact hostname(s) the client dials on
   // the ProxyJump inner hop (the `direct-tcpip` host_to_connect, e.g. "web-01" or
   // the wildcard-DNS "web-01.ssh.corp"). OpenSSH verifies the presented cert's
   // principals against the hostname it connected to. Non-empty; each is

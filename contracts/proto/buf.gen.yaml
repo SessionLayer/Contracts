@@ -1,8 +1,8 @@
 # This file DOCUMENTS the canonical plugin set; nothing in CI runs it. Each
 # consumer repo generates its own bindings from the SAME .proto sources with its
-# native build tooling — protobuf-maven-plugin + protoc-gen-grpc-java for the
+# native build tooling - protobuf-maven-plugin + protoc-gen-grpc-java for the
 # Java Control Plane, tonic-build / prost-build in build.rs for the Rust Gateway
-# and Agent — so no generated code is checked in here and nothing depends on the
+# and Agent - so no generated code is checked in here and nothing depends on the
 # buf.build remote plugins below.
 version: v2
 plugins:

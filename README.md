@@ -6,9 +6,9 @@ CP↔Gateway gRPC contract, the Agent↔Gateway and Gateway↔Gateway wire
 protocols, and the Control Plane's OpenAPI REST surface.
 
 Rather than living inside one consumer's tree and being vendored by the others
-via a sibling-checkout-path copy script — a mechanism that is a silent no-op in
+via a sibling-checkout-path copy script - a mechanism that is a silent no-op in
 CI, since CI checks out one repo at a time and the sibling path never exists
-there — every consumer, including `ControlPlane` itself, vendors from this repo
+there - every consumer, including `ControlPlane` itself, vendors from this repo
 by cloning a pinned git tag, and every consumer's CI genuinely re-fetches that
 tag to verify the vendored copy hasn't drifted.
 
@@ -75,7 +75,7 @@ tag has been fetched.
 One required check, `gate`: `buf lint` + `buf breaking` (against the `main`
 baseline) + `redocly lint` over `contracts/`, via `contracts/lint.sh`. It then
 re-runs `contracts/wire/conformance/framegen` and fails if the committed golden
-frames differ from what the protos in that commit produce — the generator and its
+frames differ from what the protos in that commit produce - the generator and its
 inputs both live here, and a stale golden is invisible to the consumers that check
 themselves against it. SHA-pinned actions, `permissions: contents: read`.
-Dependabot covers GitHub Actions only — this repo has no runtime dependencies.
+Dependabot covers GitHub Actions only - this repo has no runtime dependencies.

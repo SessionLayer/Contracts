@@ -11,8 +11,8 @@ option java_outer_classname = "CoordinationProto";
 // They live here because contracts/ is the canonical cross-repo contract home;
 // the CP generates (unused) Java.
 //
-// The normative protocol — the CoordinationBackend signalling contract, the
-// direct peer-relay handshake, and their security invariants — is
+// The normative protocol - the CoordinationBackend signalling contract, the
+// direct peer-relay handshake, and their security invariants - is
 // contracts/wire/gateway-relay-v1.md.
 //
 // ANTI-REQUIREMENT: session bytes MUST NEVER traverse the coordination bus. The
