@@ -1,0 +1,68 @@
+# The branch-protection required check is the single job `gate`. Do not rename
+# it, add a `name:`, or introduce a matrix: the required status check is
+# literally "gate" and a mismatch hangs auto-merge.
+#
+# Every action is pinned to a full commit SHA (with a version comment) so a
+# moved tag can never change what runs.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history so contracts/lint.sh can diff the protos against the
+          # `main` baseline (buf breaking).
+          fetch-depth: 0
+
+      - name: Set up Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      - name: Set up buf
+        uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1.50.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run gate
+        run: ./contracts/lint.sh
+
+      # framegen's inputs are the protos in this repository and its output is the
+      # golden both Rust repos check their codecs against. A proto change that
+      # lands without a regeneration therefore leaves both of their conformance
+      # suites green against bytes that no longer describe the contract, and this
+      # is the only place that sees the generator and its inputs together.
+      - name: Install protoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends protobuf-compiler
+          protoc --version
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # pinned commit (action publishes no semver tags)
+        with:
+          toolchain: "1.95.0"
+
+      - name: Regenerate the conformance golden
+        run: |
+          set -euo pipefail
+          cargo run --quiet --manifest-path contracts/wire/conformance/framegen/Cargo.toml
+          if ! git diff --exit-code -- contracts/wire/conformance/frames.json; then
+            echo "::error::contracts/wire/conformance/frames.json does not match what framegen produces from the protos in this commit. Run 'cargo run' in contracts/wire/conformance/framegen and commit the result."
+            exit 1
+          fi

@@ -1,0 +1,14 @@
+# This repo has no runtime dependencies, and by owner policy no NVD/OWASP
+# scanner runs anywhere in SessionLayer. Dependabot covers GitHub Actions only,
+# keeping SHA-pinned actions current.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: ci
